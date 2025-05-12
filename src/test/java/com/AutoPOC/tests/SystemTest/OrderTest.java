@@ -1,4 +1,4 @@
-package com.AutoPOC.tests;
+package com.AutoPOC.tests.SystemTest;
 
 import com.AutoPOC.base.BaseTest;
 import com.AutoPOC.config.ConfigReader;
@@ -17,11 +17,8 @@ import java.util.Map;
 public class OrderTest extends BaseTest {
 
     @Test(description = "Place order for a specific synthetic data row")
-    @Parameters("inputID")
-    public void addProductsToCart(String inputID, ITestContext context) throws InterruptedException {
-        executeTestForTestID("1", context);
-        Map<String, String> inputData = SyntheticDataUtil.getInputDataById(inputID);
-        TestContextManager.setInputData(inputData);
+    public void addProductsToCart(ITestContext context) throws InterruptedException {
+        initializeTestContext("1", "Ip1", context);
         addProductsToCartAndPlaceOrder.deleteAddress();
         addProductsToCartAndPlaceOrder.addToCartAndGoToCart();
         addProductsToCartAndPlaceOrder.clickOnEstimateShippingButton();

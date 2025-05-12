@@ -92,15 +92,16 @@ public class DriverFactory {
     T createDriver(O options, WebDriverManager manager, List<String> browserArgs,
                    List<String> headlessArgs, boolean isHeadless, Supplier<T> driverSupplier) {
 
-        manager.clearDriverCache();
-        manager.setup();
+        // Skipping driver cache cleanup to avoid deletion exceptions
+        LogUtil.info(DriverFactory.class, "Skipping driver cache cleanup for stability.");
+        manager.setup(); // Only setup, without clearing cache
 
         applyArguments(options, browserArgs, headlessArgs, isHeadless);
         T webDriver = driverSupplier.get();
 
         try {
             webDriver.manage().window().maximize();
-            //LogUtil.log(DriverFactory.class, "Browser window maximized explicitly.");
+            // LogUtil.log(DriverFactory.class, "Browser window maximized explicitly.");
         } catch (Exception e) {
             LogUtil.log(DriverFactory.class, "Unable to maximize browser window: " + e.getMessage());
         }
@@ -156,6 +157,20 @@ public class DriverFactory {
         } catch (Exception e) {
             LogUtil.error(DriverFactory.class, "Error parsing URL: " + e.getMessage());
             return url;
+        }
+    }
+
+    public static void clearChromeDriverCache() {
+        try {
+            // Kill any running chromedriver.exe process
+            Runtime.getRuntime().exec("taskkill /F /IM chromedriver.exe");
+            Thread.sleep(1000); // Give it time to terminate cleanly
+
+            // Now safely clear the WebDriverManager cache
+            WebDriverManager.chromedriver().clearDriverCache();
+            LogUtil.info(DriverFactory.class, "ChromeDriver cache cleared successfully.");
+        } catch (Exception e) {
+            LogUtil.warn(DriverFactory.class, "Unable to clear ChromeDriver cache: " + e.getMessage());
         }
     }
 }

@@ -35,10 +35,16 @@ import java.util.Map;
 /**
  * Abstract base class for all TestNG test classes.
  * <p>
- * Manages WebDriver initialization, test execution workflow,
- * ExtentReport integration, data recording, and teardown procedures.
+ * Responsibilities include:
+ * <ul>
+ *     <li>WebDriver lifecycle management</li>
+ *     <li>Data-driven test execution</li>
+ *     <li>ExtentReport integration</li>
+ *     <li>Failure handling & screenshot capture</li>
+ *     <li>Dynamic test context setup</li>
+ * </ul>
  */
-public class BaseTest {
+public abstract class BaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
     private static Instant startTime;
@@ -48,24 +54,24 @@ public class BaseTest {
     protected AddProductsToCartAndPlaceOrder addProductsToCartAndPlaceOrder;
     protected OrderInformationPage orderInformationPage;
 
-    /** -------------------------------------------------
-     *  Test Suite Setup and Teardown
-     *  ------------------------------------------------- */
+    // ─────────────────────────────────────────────────────────────────────
+    // Suite Setup & Teardown
+    // ─────────────────────────────────────────────────────────────────────
 
     /**
      * Executes once before the entire test suite.
-     * Initializes ExtentReports and records start time.
+     * Initializes reporting and logs execution start time.
      */
     @BeforeSuite
     public void suiteSetup() {
         startTime = Instant.now();
-        logger.info("Test Execution Started at: {}", getCurrentTime());
+        logger.info("Test execution started at: {}", getCurrentTime());
         ExtentReportManager.INSTANCE.initReport();
     }
 
     /**
      * Executes once after the entire test suite.
-     * Flushes reports, sends email notifications, and logs execution summary.
+     * Sends report summary via email and logs execution duration.
      */
     @AfterSuite
     public void suiteTearDown() {
@@ -77,40 +83,39 @@ public class BaseTest {
                 ExtentReportManager.INSTANCE.getTestsFailed()
         );
 
-        logger.info("Test Execution Ended at: {}", getCurrentTime());
-        logger.info("Total Execution Time: {}", getExecutionDuration());
+        logger.info("Test execution ended at: {}", getCurrentTime());
+        logger.info("Total execution time: {}", getExecutionDuration());
     }
 
-    /** -------------------------------------------------
-     *  Test Setup and Execution
-     *  ------------------------------------------------- */
+    // ─────────────────────────────────────────────────────────────────────
+    // Test Setup & Execution
+    // ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Executes before each test method.
-     * Initializes the ExtentReport test node and logs setup actions.
+     * Executed before each test method.
+     * Creates an ExtentReport node for the current test.
      *
-     * @param method The test method about to be executed
+     * @param method the test method being run
      */
     @BeforeMethod
     public void setUp(Method method) {
         ExtentReportManager.INSTANCE.createTest(method.getName());
-        logger.info("Setting up WebDriver before test execution.");
+        logger.info("Test setup initialized for method: {}", method.getName());
     }
 
     /**
-     * Core setup and execution flow for each TestID.
-     * Initializes WebDriver, navigates to application, logs into the system, and prepares page objects.
+     * Core driver/test context initializer. Launches browser, logs in, and initializes page objects.
      *
-     * @param testID  The Test ID to execute
-     * @param context TestNG context object
+     * @param testID  unique Test ID identifier from test data
+     * @param context TestNG context
      */
     @Test(dataProvider = "testData")
     public void executeTestForTestID(String testID, ITestContext context) {
-        logger.info("Fetching test data for TestID: {}", testID);
+        logger.info("Preparing to execute test for TestID: {}", testID);
 
         Map<String, String> testData = TestDataUtil.getTestCaseByTestID(testID);
         if (testData.isEmpty()) {
-            throw new RuntimeException("TestID " + testID + " not found in Excel!");
+            throw new IllegalArgumentException("No test data found for TestID: " + testID);
         }
 
         String browser = testData.getOrDefault(TestDataKeys.BROWSER, "chrome");
@@ -121,16 +126,14 @@ public class BaseTest {
         context.setAttribute("TestID", testID);
         context.setAttribute("Browser", browser);
 
-        logger.info("Running TestID={} on browser={}", testID, browser);
-
         try {
             DriverFactory.initializeDriver(browser);
             driver = DriverFactory.getDriver();
             driver.get(testURL);
             logger.info("Navigated to: {}", testURL);
         } catch (Exception e) {
-            logger.error("WebDriver initialization failed.", e);
-            throw new RuntimeException(e);
+            logger.error("Failed to initialize WebDriver.", e);
+            throw new RuntimeException("Driver initialization failed", e);
         }
 
         loginPage = new LoginPage();
@@ -139,76 +142,78 @@ public class BaseTest {
 
         try {
             loginPage.login(username, password);
-            logger.info("Logged in as {}", username);
+            logger.info("Login successful for user: {}", username);
             PopupHandler.dismissSavePasswordPopup();
         } catch (Exception e) {
             logger.error("Login failed for user: {}", username, e);
-            throw new RuntimeException(e);
+            throw new RuntimeException("Login failed", e);
         }
     }
 
-    /** -------------------------------------------------
-     *  Test Teardown and Reporting
-     *  ------------------------------------------------- */
+    // ─────────────────────────────────────────────────────────────────────
+    // Test Teardown & Reporting
+    // ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Executes after each test method.
-     * Records execution data into Excel, handles reporting for success/failure, and captures screenshots on failure.
+     * Captures execution result and logs reporting details.
+     * Captures screenshots on failure.
      *
-     * @param result TestNG result object
+     * @param result result of the executed test method
      */
     @AfterMethod(alwaysRun = true)
     public void recordExecutionData(ITestResult result) {
         try {
             int rowIndex = getOrCreateExcelRowIndex(result);
-
             ExecutionDataUtil.writeExecutionData(rowIndex, result);
 
             switch (result.getStatus()) {
                 case ITestResult.SUCCESS -> ExtentReportManager.INSTANCE.logPass("Test Passed: " + result.getName());
+
                 case ITestResult.FAILURE -> {
                     ExtentReportManager.INSTANCE.logFail("Test Failed: " + result.getName(), result.getThrowable());
                     String screenshotPath = ScreenshotUtil.saveScreenshotAsPNG(driver, result.getName());
                     ExtentReportManager.INSTANCE.attachScreenshotFromPath(screenshotPath, "Failure Screenshot");
-                    logger.error("Failure details:", result.getThrowable());
+                    logger.error("Failure details captured.", result.getThrowable());
                 }
+
                 case ITestResult.SKIP -> ExtentReportManager.INSTANCE.logSkip("Test Skipped: " + result.getName());
             }
+
         } catch (Exception e) {
-            logger.error("Error recording execution data.", e);
+            logger.error("Error during execution result recording.", e);
         } finally {
             ExtentReportManager.INSTANCE.removeTest();
         }
     }
 
     /**
-     * Executes after each test method to quit the WebDriver instance.
+     * Quits the WebDriver instance after test method execution.
      */
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
         try {
             DriverFactory.quitDriver();
         } catch (Exception e) {
-            logger.error("Error quitting WebDriver.", e);
+            logger.error("Error occurred while quitting WebDriver.", e);
         }
     }
 
     /**
-     * Clears TestContext after each method to avoid data leakage between tests.
+     * Clears the test context to prevent data leakage between test runs.
      */
     @AfterMethod
     public void clearContext() {
         TestContextManager.clear();
     }
 
-    /** -------------------------------------------------
-     *  Data Providers
-     *  ------------------------------------------------- */
+    // ─────────────────────────────────────────────────────────────────────
+    // Data Providers
+    // ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Provides test data mapped by TestIDs from external sources.
+     * Supplies test cases based on static test data.
      *
-     * @return Object array of TestIDs
+     * @return array of test IDs
      */
     @DataProvider(name = "testData")
     public Object[][] getTestData() {
@@ -216,32 +221,32 @@ public class BaseTest {
     }
 
     /**
-     * Provides synthetic data inputs for testing.
+     * Supplies synthetic input IDs for parameterized test execution.
      *
-     * @return Object array of synthetic input IDs
+     * @return array of input IDs
      */
     @DataProvider(name = "syntheticData")
     public Object[][] syntheticData() {
         return SyntheticDataUtil.getAllInputIDs();
     }
 
-    /** -------------------------------------------------
-     *  Private Utility Methods
-     *  ------------------------------------------------- */
+    // ─────────────────────────────────────────────────────────────────────
+    // Utility Methods
+    // ─────────────────────────────────────────────────────────────────────
 
     /**
-     * Returns the current timestamp as formatted string.
+     * Gets the current time formatted for logging purposes.
      *
-     * @return Current timestamp (yyyy-MM-dd HH:mm:ss)
+     * @return formatted current time string
      */
     private String getCurrentTime() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     /**
-     * Calculates total execution duration from start to end.
+     * Calculates and returns execution duration from suite start to current time.
      *
-     * @return Formatted execution duration string
+     * @return formatted duration string
      */
     private String getExecutionDuration() {
         Duration duration = Duration.between(startTime, Instant.now());
@@ -249,24 +254,38 @@ public class BaseTest {
     }
 
     /**
-     * Retrieves or creates the Excel row index for recording test execution.
+     * Finds or creates the appropriate Excel row index to write test execution data.
      *
-     * @param result TestNG ITestResult instance
-     * @return Row index to be used
+     * @param result the current test result
+     * @return valid Excel row index
      */
     private int getOrCreateExcelRowIndex(ITestResult result) {
         Object attr = result.getTestContext().getAttribute("ExcelRowIndex");
 
         if (attr instanceof Integer idx) {
             return idx;
-        } else {
-            Sheet sheet = ExcelReaderUtil.getSheet(
-                    ConfigReader.getProperty("Test_Data_File_Path"),
-                    ConfigReader.getProperty("Transactional_Data_Sheet_Name")
-            );
-            int newRow = ExcelUtil.findNextAvailableRow(sheet, ExcelColumnIndex.RUN_ID, 2);
-            result.getTestContext().setAttribute("ExcelRowIndex", newRow);
-            return newRow;
         }
+
+        Sheet sheet = ExcelReaderUtil.getSheet(
+                ConfigReader.getProperty("Test_Data_File_Path"),
+                ConfigReader.getProperty("Transactional_Data_Sheet_Name")
+        );
+
+        int newRow = ExcelUtil.findNextAvailableRow(sheet, ExcelColumnIndex.RUN_ID, 2);
+        result.getTestContext().setAttribute("ExcelRowIndex", newRow);
+        return newRow;
+    }
+
+    /**
+     * Initializes test context for synthetic data-driven tests.
+     *
+     * @param testID  test case identifier
+     * @param inputID synthetic input identifier
+     * @param context TestNG context
+     */
+    protected void initializeTestContext(String testID, String inputID, ITestContext context) {
+        executeTestForTestID(testID, context);
+        Map<String, String> inputData = SyntheticDataUtil.getInputDataById(inputID);
+        TestContextManager.setInputData(inputData);
     }
 }

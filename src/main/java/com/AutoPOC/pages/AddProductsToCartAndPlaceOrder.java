@@ -171,7 +171,11 @@ public class AddProductsToCartAndPlaceOrder extends BasePage {
      * Adds a product to the cart and navigates to the shopping cart page.
      */
     public void addToCartAndGoToCart() {
+        scrollIntoView(addToCartButton);
         click(addToCartButton, "Add to Cart clicked");
+        // Wait for either cart count to update, toast to appear, or cart button to be clickable
+        waitUntilClickable(shoppingCartButton, 7);  // Custom timeout if needed
+        scrollIntoView(shoppingCartButton);
         click(shoppingCartButton, "Shopping Cart clicked");
     }
 
