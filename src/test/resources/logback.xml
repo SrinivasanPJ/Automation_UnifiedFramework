@@ -13,27 +13,29 @@
     <!-- Rolling File Logging (Daily Rotation + Splits Large Files) -->
     <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/automation.log</file>
-
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <!-- Log File Rotation: Daily logs + Split into 10MB chunks if large -->
+            <!-- Daily logs + 10MB chunks -->
             <fileNamePattern>${LOG_DIR}/automation-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-
-            <!-- Limit log file size per chunk -->
             <maxFileSize>10MB</maxFileSize>
-
-            <!-- Keep all historical logs (no deletion) -->
-            <maxHistory>0</maxHistory>  <!-- 0 means keep all logs forever -->
+            <maxHistory>0</maxHistory>
         </rollingPolicy>
-
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Logger for org.AutoPOC (DEBUG Level) -->
+    <!-- Silence low-value INFO logs from our Excel/Order/Execution utilities -->
+    <logger name="com.AutoPOC.utils.excel.ExcelUtil" level="WARN"/>
+    <logger name="com.AutoPOC.utils.data.OrderDataUtil" level="WARN"/>
+    <logger name="com.AutoPOC.utils.data.ExecutionDataUtil" level="WARN"/>
+
+    <!-- (Alternatively, to silence *all* utils: ) -->
+    <!-- <logger name="com.AutoPOC.utils" level="WARN"/> -->
+
+    <!-- Your application-level logger -->
     <logger name="org.AutoPOC" level="DEBUG"/>
 
-    <!-- Root Logger (INFO Level) -->
+    <!-- Root Logger at INFO for all other classes -->
     <root level="INFO">
         <appender-ref ref="Console"/>
         <appender-ref ref="RollingFile"/>

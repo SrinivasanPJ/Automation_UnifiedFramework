@@ -1,14 +1,19 @@
-package com.AutoPOC.utils;
+package com.AutoPOC.utils.data;
+
+import com.AutoPOC.config.ConfigReader;
+import com.AutoPOC.utils.excel.ExcelReaderUtil;
 
 import java.util.List;
 import java.util.Map;
 
 public class TestDataUtil {
 
-    private static final String FILE_PATH  = ConfigReader.getProperty("Test_Data_File_Path");
+    private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
     private static final String SHEET_NAME = ConfigReader.getProperty("Login_Data_Sheet_Name");
 
-    /** Lookup a single row by TestID in Common_TestData */
+    /**
+     * Lookup a single row by TestID in Common_TestData
+     */
     public static Map<String, String> getTestCaseByTestID(String testID) {
         return ExcelReaderUtil.getRowByKey(
                 FILE_PATH,

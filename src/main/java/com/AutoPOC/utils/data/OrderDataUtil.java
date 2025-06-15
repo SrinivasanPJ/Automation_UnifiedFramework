@@ -1,19 +1,21 @@
-package com.AutoPOC.utils;
+package com.AutoPOC.utils.data;
 
+import com.AutoPOC.config.ConfigReader;
+import com.AutoPOC.utils.reporting.LogUtil;
+import com.AutoPOC.utils.excel.ExcelColumnIndex;
+import com.AutoPOC.utils.excel.ExcelUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Utility class to log Order ID and Order Date into Excel for each execution.
  * Fields are recorded under 'Transactional_Data_Sheet_Name'.
  */
 public class OrderDataUtil {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderDataUtil.class);
 
     private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
     private static final String SHEET_NAME = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
@@ -38,17 +40,19 @@ public class OrderDataUtil {
             if (row == null) row = sheet.createRow(rowIndex);
 
             CellStyle style = createBorderStyle(wb);
-            setCell(row, ORDER_ID_COL, orderNum, style);
-            setCell(row, ORDER_DATE_COL, orderDate, style);
+            ExcelUtil.setCellValue(row, ExcelColumnIndex.ORDER_ID, orderNum, style);
+            ExcelUtil.setCellValue(row, ExcelColumnIndex.ORDER_DATE, orderDate, style);
 
             try (FileOutputStream out = new FileOutputStream(FILE_PATH)) {
                 wb.write(out);
             }
 
-            logger.info("Order data written to row {}: [ID={}, Date={}]", rowIndex + 1, orderNum, orderDate);
+            //LogUtil.log(OrderDataUtil.class, String.format("Order data written to row %d: [ID=%s, Date=%s]", rowIndex + 1, orderNum, orderDate));
+            //ExtentReportManager.logInfoSimple("Order data written to Excel: ID=" + orderNum + ", Date=" + orderDate);
+
 
         } catch (IOException e) {
-            logger.error("Failed to write order data", e);
+            LogUtil.error(OrderDataUtil.class, "Failed to write order data", e);
         }
     }
 
@@ -62,14 +66,5 @@ public class OrderDataUtil {
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
         return style;
-    }
-
-    /**
-     * Sets a value into a cell with the specified style.
-     */
-    private static void setCell(Row row, int colIndex, String value, CellStyle style) {
-        Cell cell = row.createCell(colIndex);
-        cell.setCellValue(value);
-        cell.setCellStyle(style);
     }
 }

@@ -11,91 +11,91 @@
 2025-03-07 10:17:12 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:17:26 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:17:26 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:25:28 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:25:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
-2025-03-07 10:25:51 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:25:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:25:51 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 10:38:47 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:38:54 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:38:54 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:39:02 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 10:39:02 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 10:39:03 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
-2025-03-07 10:39:04 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:39:04 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 10:40:19 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:40:26 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:40:26 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:40:31 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 10:40:31 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 10:40:33 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
-2025-03-07 10:40:33 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
-2025-03-07 10:40:38 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
-2025-03-07 10:40:46 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:40:33 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:40:38 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:40:46 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 10:43:09 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:43:16 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:43:16 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:43:25 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 10:43:25 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 10:43:26 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
-2025-03-07 10:43:26 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:43:26 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 10:46:27 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:46:34 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:46:34 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:46:38 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 10:46:38 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 10:46:39 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
-2025-03-07 10:46:39 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:46:39 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 10:51:09 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:51:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:51:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:51:20 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 10:51:20 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 10:51:21 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
 2025-03-07 10:51:22 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Category is clicked
-2025-03-07 10:51:23 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:51:23 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 10:53:49 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 10:53:56 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 10:53:56 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 10:54:00 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 10:54:00 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 10:54:01 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
 2025-03-07 10:54:03 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Category is clicked
 2025-03-07 10:54:03 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Add to Cart' button clicked
-2025-03-07 10:54:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 10:54:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 11:26:19 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 11:26:27 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 11:26:27 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 11:26:30 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 11:26:30 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 11:26:31 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
 2025-03-07 11:26:32 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Category is clicked
 2025-03-07 11:26:33 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Random 'Add to Cart' button clicked
 2025-03-07 11:26:34 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Shopping cart button is clicked
-2025-03-07 11:26:43 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 11:26:43 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 11:37:56 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 11:38:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 11:38:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 11:38:08 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 11:38:08 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 11:38:09 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
 2025-03-07 11:38:10 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Category is clicked
 2025-03-07 11:38:12 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Shopping cart button is clicked
 2025-03-07 11:38:12 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - United States is selected
-2025-03-07 11:38:13 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 11:38:13 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 11:53:19 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 11:53:31 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 11:53:31 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 11:53:44 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 11:53:44 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 11:53:46 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -103,11 +103,11 @@
 2025-03-07 11:53:52 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Shopping cart button is clicked
 2025-03-07 11:53:52 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - United States is selected
 2025-03-07 11:53:53 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Selected state: AA (Armed Forces Americas)
-2025-03-07 11:54:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 11:54:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 12:02:05 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 12:02:17 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 12:02:17 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 12:02:23 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 12:02:23 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 12:02:24 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -120,11 +120,11 @@
 2025-03-07 12:02:34 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Clicked continue button 3 times
 2025-03-07 12:02:34 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Clicked continue button 4 times
 2025-03-07 12:02:34 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Clicked continue button 5 times
-2025-03-07 12:02:37 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 12:02:37 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 12:15:41 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 12:15:52 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 12:15:52 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 12:15:58 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 12:15:58 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 12:15:59 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -135,12 +135,12 @@
 2025-03-07 12:16:08 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Clicked continue button 1 times
 2025-03-07 12:16:08 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Clicked continue button 2 times
 2025-03-07 12:16:08 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Clicked continue button 3 times
-2025-03-07 12:16:11 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 12:16:11 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 12:16:11 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 12:16:11 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 12:26:12 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 12:26:23 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 12:26:23 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 12:26:28 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 12:26:28 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 12:26:29 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -150,12 +150,12 @@
 2025-03-07 12:26:34 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Selected state: AA (Armed Forces Americas)
 2025-03-07 12:26:42 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Verifying order success message...
 2025-03-07 12:26:42 [TestNG-PoolService-1] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Order success message verified successfully.
-2025-03-07 12:26:43 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 12:26:46 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 12:26:43 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 12:26:46 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 12:56:59 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 12:57:11 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 12:57:11 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 12:57:16 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 12:57:16 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 12:57:17 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -168,13 +168,13 @@
 2025-03-07 12:57:32 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 12:57:32 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 12:57:32 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1917981 | 03/07/2025 | Pending
-2025-03-07 12:57:32 [TestNG-PoolService-1] ERROR com.AutoPOC.utils.OrderDataUtil - Excel file not found: path_to_your/TransactionDetails.xlsx
-2025-03-07 12:57:33 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 12:57:35 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 12:57:32 [TestNG-PoolService-1] ERROR com.AutoPOC.utils.data.OrderDataUtil - Excel file not found: path_to_your/TransactionDetails.xlsx
+2025-03-07 12:57:33 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 12:57:35 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:02:33 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:02:44 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:02:44 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:02:50 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:02:50 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:02:52 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -187,13 +187,13 @@
 2025-03-07 13:03:06 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:03:06 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:03:06 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918027 | 03/07/2025 | Pending
-2025-03-07 13:03:06 [TestNG-PoolService-1] ERROR com.AutoPOC.utils.OrderDataUtil - Header mismatch in sheet 'Orders'. Expected: [Order ID, Order Date, Order Status]
-2025-03-07 13:03:08 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:03:10 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:03:06 [TestNG-PoolService-1] ERROR com.AutoPOC.utils.data.OrderDataUtil - Header mismatch in sheet 'Orders'. Expected: [Order ID, Order Date, Order Status]
+2025-03-07 13:03:08 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:03:10 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:18:29 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:18:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:18:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:18:46 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:18:46 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:18:47 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -206,14 +206,14 @@
 2025-03-07 13:19:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:19:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:19:01 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918042 | 03/07/2025 | Pending
-2025-03-07 13:19:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 1: OrderID=1918042, Date=03/07/2025, Status=Pending
-2025-03-07 13:19:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: /C:/Users/SPidugujothi/IdeaProjects/Data_Extract/target/test-classes/transactionalData.xlsx
-2025-03-07 13:19:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:19:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:19:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 1: OrderID=1918042, Date=03/07/2025, Status=Pending
+2025-03-07 13:19:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: /C:/Users/SPidugujothi/IdeaProjects/Data_Extract/target/test-classes/transactionalData.xlsx
+2025-03-07 13:19:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:19:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:25:48 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:25:59 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:25:59 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:26:04 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:26:04 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:26:06 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -226,14 +226,14 @@
 2025-03-07 13:26:19 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:26:19 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:26:20 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918051 | 03/07/2025 | Pending
-2025-03-07 13:26:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 1: OrderID=1918051, Date=03/07/2025, Status=Pending
-2025-03-07 13:26:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: /C:/Users/SPidugujothi/IdeaProjects/Data_Extract/target/test-classes/transactionalData.xlsx
-2025-03-07 13:26:21 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:26:22 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:26:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 1: OrderID=1918051, Date=03/07/2025, Status=Pending
+2025-03-07 13:26:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: /C:/Users/SPidugujothi/IdeaProjects/Data_Extract/target/test-classes/transactionalData.xlsx
+2025-03-07 13:26:21 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:26:22 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:31:27 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:31:37 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:31:37 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:31:45 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:31:45 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:31:48 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -246,14 +246,14 @@
 2025-03-07 13:32:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:32:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:32:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918055 | 03/07/2025 | Pending
-2025-03-07 13:32:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 1: OrderID=1918055, Date=03/07/2025, Status=Pending
-2025-03-07 13:32:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
-2025-03-07 13:32:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:32:04 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:32:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 1: OrderID=1918055, Date=03/07/2025, Status=Pending
+2025-03-07 13:32:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
+2025-03-07 13:32:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:32:04 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:38:30 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:38:41 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:38:41 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:38:45 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:38:45 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:38:47 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -266,14 +266,14 @@
 2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918061 | 03/07/2025 | Pending
-2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 2: OrderID=1918061, Date=03/07/2025, Status=Pending
-2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
-2025-03-07 13:39:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:39:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 2: OrderID=1918061, Date=03/07/2025, Status=Pending
+2025-03-07 13:39:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
+2025-03-07 13:39:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:39:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:42:46 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:42:57 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:42:57 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:43:02 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:43:02 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:43:03 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -286,14 +286,14 @@
 2025-03-07 13:43:17 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:43:17 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:43:17 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918064 | 03/07/2025 | Pending
-2025-03-07 13:43:17 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 3: OrderID=1918064, Date=03/07/2025, Status=Pending
-2025-03-07 13:43:17 [TestNG-PoolService-1] ERROR com.AutoPOC.utils.OrderDataUtil - Error writing data to Excel file: src/test/resources/transactionalData.xlsx
+2025-03-07 13:43:17 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 3: OrderID=1918064, Date=03/07/2025, Status=Pending
+2025-03-07 13:43:17 [TestNG-PoolService-1] ERROR com.AutoPOC.utils.data.OrderDataUtil - Error writing data to Excel file: src/test/resources/transactionalData.xlsx
 java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The process cannot access the file because it is being used by another process)
 	at java.base/java.io.FileOutputStream.open0(Native Method)
 	at java.base/java.io.FileOutputStream.open(FileOutputStream.java:295)
 	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:237)
 	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:124)
-	at com.AutoPOC.utils.OrderDataUtil.writeOrderData(OrderDataUtil.java:54)
+	at com.AutoPOC.utils.data.OrderDataUtil.writeOrderData(OrderDataUtil.java:54)
 	at com.AutoPOC.pages.OrderInformationPage.saveOrderDetailsToExcelFile(OrderInformationPage.java:85)
 	at com.AutoPOC.tests.OrderTest.addProductsToCart(OrderTest.java:30)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
@@ -306,12 +306,12 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
 	at java.base/java.lang.Thread.run(Thread.java:1575)
-2025-03-07 13:43:18 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:43:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:43:18 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:43:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:44:05 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:44:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:44:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:44:22 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:44:22 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:44:24 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -324,14 +324,14 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-07 13:44:38 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:44:38 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:44:38 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918065 | 03/07/2025 | Pending
-2025-03-07 13:44:38 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 3: OrderID=1918065, Date=03/07/2025, Status=Pending
-2025-03-07 13:44:39 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
-2025-03-07 13:44:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:44:41 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:44:38 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 3: OrderID=1918065, Date=03/07/2025, Status=Pending
+2025-03-07 13:44:39 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
+2025-03-07 13:44:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:44:41 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 13:48:41 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 13:48:51 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 13:48:51 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 13:48:59 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 13:48:59 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 13:49:01 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -344,15 +344,15 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-07 13:49:14 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 13:49:14 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 13:49:15 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918068 | 03/07/2025 | Pending
-2025-03-07 13:49:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 4: OrderID=1918068, Date=03/07/2025, Status=Pending
-2025-03-07 13:49:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
-2025-03-07 13:49:16 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
-2025-03-07 13:49:17 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 13:49:18 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 13:49:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 4: OrderID=1918068, Date=03/07/2025, Status=Pending
+2025-03-07 13:49:15 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
+2025-03-07 13:49:16 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
+2025-03-07 13:49:17 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 13:49:18 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 14:04:42 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 14:04:55 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 14:04:55 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 14:05:01 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 14:05:01 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 14:05:03 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -365,15 +365,15 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918086 | 03/07/2025 | Pending
-2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 5: OrderID=1918086, Date=03/07/2025, Status=Pending
-2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
-2025-03-07 14:05:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
-2025-03-07 14:05:21 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 14:05:24 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 5: OrderID=1918086, Date=03/07/2025, Status=Pending
+2025-03-07 14:05:19 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
+2025-03-07 14:05:20 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
+2025-03-07 14:05:21 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 14:05:24 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-07 14:57:33 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-07 14:57:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 14:57:40 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-07 14:57:47 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-07 14:57:47 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-07 14:57:48 [TestNG-PoolService-1] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
@@ -396,14 +396,14 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  c.AutoPOC.pages.OrderInformationPage - 1918138 | 03/07/2025 | Pending
-2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved at row 6: OrderID=1918138, Date=03/07/2025, Status=Pending
-2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
-2025-03-07 14:58:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
-2025-03-07 14:58:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 14:58:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
-2025-03-07 14:58:09 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
-2025-03-07 14:58:13 [main] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-07 14:58:14 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved at row 6: OrderID=1918138, Date=03/07/2025, Status=Pending
+2025-03-07 14:58:00 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Data successfully written to file: src/test/resources/transactionalData.xlsx
+2025-03-07 14:58:01 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.data.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
+2025-03-07 14:58:02 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 14:58:03 [TestNG-PoolService-1] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
+2025-03-07 14:58:09 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-07 14:58:13 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-07 14:58:14 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-09 01:54:38 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
@@ -416,7 +416,7 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-09 01:58:47 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-09 01:59:01 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-09 01:59:01 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-09 01:59:06 [main] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-09 01:59:06 [main] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-09 01:59:06 [main] INFO  com.AutoPOC.pages.LoginPage - Email entered
@@ -438,20 +438,20 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-09 01:59:21 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Payment info continue button clicked
 2025-03-09 01:59:23 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Order confirmed
 2025-03-09 01:59:24 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Order success message verified successfully.
-2025-03-09 01:59:25 [main] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-09 01:59:26 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
-2025-03-09 01:59:33 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-09 01:59:25 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-09 01:59:26 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
+2025-03-09 01:59:33 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-09 01:59:38 [main] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-09 01:59:38 [main] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-09 01:59:39 [main] INFO  com.AutoPOC.pages.LoginPage - Email entered
 2025-03-09 01:59:39 [main] INFO  com.AutoPOC.pages.LoginPage - Password entered
 2025-03-09 01:59:41 [main] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
-2025-03-09 02:00:02 [main] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-09 02:00:03 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-09 02:00:02 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-09 02:00:03 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-09 02:01:21 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-09 02:01:31 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-09 02:01:31 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-09 02:01:38 [main] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-09 02:01:38 [main] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-09 02:01:38 [main] INFO  com.AutoPOC.pages.LoginPage - Email entered
@@ -476,14 +476,14 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-09 02:01:58 [main] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-09 02:01:58 [main] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-09 02:01:58 [main] INFO  c.AutoPOC.pages.OrderInformationPage - 1919232 | 03/08/2025 | Pending
-2025-03-09 02:01:58 [main] INFO  com.AutoPOC.utils.OrderDataUtil - Order saved: ID=1919232, Date=03/08/2025, Status=Pending in src/test/resources/transactionalData.xlsx
-2025-03-09 02:02:01 [main] INFO  com.AutoPOC.utils.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
-2025-03-09 02:02:02 [main] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-09 02:02:07 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-09 02:01:58 [main] INFO  com.AutoPOC.utils.data.OrderDataUtil - Order saved: ID=1919232, Date=03/08/2025, Status=Pending in src/test/resources/transactionalData.xlsx
+2025-03-09 02:02:01 [main] INFO  com.AutoPOC.utils.data.OrderDataUtil - Opened Excel file: src/test/resources/transactionalData.xlsx
+2025-03-09 02:02:02 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-09 02:02:07 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-09 02:11:18 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-09 02:11:28 [main] INFO  com.AutoPOC.utils.DriverFactory - Initialized WebDriver for browser: chrome
+2025-03-09 02:11:28 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Initialized WebDriver for browser: chrome
 2025-03-09 02:11:33 [main] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-09 02:11:33 [main] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: testUser@myridius.com
 2025-03-09 02:11:33 [main] INFO  com.AutoPOC.pages.LoginPage - Email entered
@@ -508,13 +508,13 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-09 02:11:50 [main] INFO  c.AutoPOC.pages.OrderInformationPage - Order details link clicked
 2025-03-09 02:11:50 [main] INFO  c.AutoPOC.pages.OrderInformationPage - Getting order ID...
 2025-03-09 02:11:51 [main] INFO  c.AutoPOC.pages.OrderInformationPage - 1919236 | 03/08/2025 | Pending
-2025-03-09 02:11:51 [main] ERROR com.AutoPOC.utils.OrderDataUtil - Error writing to file: src/test/resources/transactionalData.xlsx
+2025-03-09 02:11:51 [main] ERROR com.AutoPOC.utils.data.OrderDataUtil - Error writing to file: src/test/resources/transactionalData.xlsx
 java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The process cannot access the file because it is being used by another process)
 	at java.base/java.io.FileOutputStream.open0(Native Method)
 	at java.base/java.io.FileOutputStream.open(FileOutputStream.java:295)
 	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:237)
 	at java.base/java.io.FileOutputStream.<init>(FileOutputStream.java:124)
-	at com.AutoPOC.utils.OrderDataUtil.writeOrderData(OrderDataUtil.java:28)
+	at com.AutoPOC.utils.data.OrderDataUtil.writeOrderData(OrderDataUtil.java:28)
 	at com.AutoPOC.pages.OrderInformationPage.saveOrderDetailsToExcelFile(OrderInformationPage.java:88)
 	at com.AutoPOC.tests.OrderTest.addProductsToCart(OrderTest.java:23)
 	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
@@ -542,36 +542,36 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 	at org.testng.TestNG.run(TestNG.java:1079)
 	at com.intellij.rt.testng.IDEARemoteTestNG.run(IDEARemoteTestNG.java:65)
 	at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105)
-2025-03-09 02:11:52 [main] INFO  com.AutoPOC.utils.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
-2025-03-09 02:11:53 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
+2025-03-09 02:11:52 [main] INFO  com.AutoPOC.utils.core.DriverFactory - Cleared cookies for https://demowebshop.tricentis.com
+2025-03-09 02:11:53 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
 2025-03-09 17:38:51 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-09 17:38:51 [main] INFO  com.AutoPOC.BaseTest - Test Execution Started at: 2025-03-09 17:38:51
-2025-03-09 17:38:53 [main] INFO  com.AutoPOC.BaseTest - Login credentials loaded successfully.
-2025-03-09 17:38:53 [main] INFO  com.AutoPOC.BaseTest - Test Execution Ended at: 2025-03-09 17:38:53
-2025-03-09 17:38:53 [main] INFO  com.AutoPOC.BaseTest - Total Execution Time: 00 min, 01 sec
+2025-03-09 17:38:51 [main] INFO  com.AutoPOC.base.BaseTest - Test Execution Started at: 2025-03-09 17:38:51
+2025-03-09 17:38:53 [main] INFO  com.AutoPOC.base.BaseTest - Login credentials loaded successfully.
+2025-03-09 17:38:53 [main] INFO  com.AutoPOC.base.BaseTest - Test Execution Ended at: 2025-03-09 17:38:53
+2025-03-09 17:38:53 [main] INFO  com.AutoPOC.base.BaseTest - Total Execution Time: 00 min, 01 sec
 2025-03-09 17:44:27 [main] INFO  org.testng.internal.Utils - [TestNG] Running:
   C:\Users\SPidugujothi\AppData\Local\JetBrains\IntelliJIdea2024.3\temp-testng-customsuite.xml
 
-2025-03-09 17:44:27 [main] INFO  com.AutoPOC.BaseTest - Test Execution Started at: 2025-03-09 17:44:27
-2025-03-09 17:44:28 [main] INFO  com.AutoPOC.BaseTest - Login credentials loaded successfully.
-2025-03-09 17:44:28 [main] INFO  com.AutoPOC.BaseTest - Setting up WebDriver before test execution.
-2025-03-09 17:44:28 [main] INFO  com.AutoPOC.BaseTest - Fetching test data for Test ID: 2
-2025-03-09 17:44:29 [main] INFO  com.AutoPOC.BaseTest - Running Test ID: 2 on Browser: edge
+2025-03-09 17:44:27 [main] INFO  com.AutoPOC.base.BaseTest - Test Execution Started at: 2025-03-09 17:44:27
+2025-03-09 17:44:28 [main] INFO  com.AutoPOC.base.BaseTest - Login credentials loaded successfully.
+2025-03-09 17:44:28 [main] INFO  com.AutoPOC.base.BaseTest - Setting up WebDriver before test execution.
+2025-03-09 17:44:28 [main] INFO  com.AutoPOC.base.BaseTest - Fetching test data for Test ID: 2
+2025-03-09 17:44:29 [main] INFO  com.AutoPOC.base.BaseTest - Running Test ID: 2 on Browser: edge
 2025-03-09 17:44:32 [main] INFO  i.g.bonigarcia.wdm.WebDriverManager - Using msedgedriver 134.0.3124.51 (resolved driver for Edge 134)
 2025-03-09 17:44:32 [main] INFO  i.g.bonigarcia.wdm.WebDriverManager - Reading https://msedgedriver.azureedge.net/?restype=container&comp=list to seek msedgedriver
 2025-03-09 17:44:34 [main] INFO  i.g.bonigarcia.wdm.online.Downloader - Downloading https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/134.0.3124.51/edgedriver_win64.zip
 2025-03-09 17:44:41 [main] INFO  i.g.bonigarcia.wdm.online.Downloader - Extracting driver from compressed file edgedriver_win64.zip
 2025-03-09 17:44:41 [main] INFO  i.g.bonigarcia.wdm.WebDriverManager - Exporting webdriver.edge.driver as C:\Users\SPidugujothi\.cache\selenium\msedgedriver\win64\134.0.3124.51\msedgedriver.exe
-2025-03-09 17:44:52 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver initialized for browser: edge
-2025-03-09 17:44:56 [main] INFO  com.AutoPOC.BaseTest - Navigated to URL: https://demowebshop.tricentis.com
+2025-03-09 17:44:52 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver initialized for browser: edge
+2025-03-09 17:44:56 [main] INFO  com.AutoPOC.base.BaseTest - Navigated to URL: https://demowebshop.tricentis.com
 2025-03-09 17:44:57 [main] INFO  com.AutoPOC.pages.LoginPage - Main Login button clicked
 2025-03-09 17:44:57 [main] INFO  com.AutoPOC.pages.LoginPage - Attempting to login with email: sriUser@demoshop.com
 2025-03-09 17:44:57 [main] INFO  com.AutoPOC.pages.LoginPage - Email entered
 2025-03-09 17:44:58 [main] INFO  com.AutoPOC.pages.LoginPage - Password entered
 2025-03-09 17:44:59 [main] INFO  com.AutoPOC.pages.LoginPage - Login button clicked
-2025-03-09 17:44:59 [main] INFO  com.AutoPOC.BaseTest - Successfully logged in as: sriUser@demoshop.com
+2025-03-09 17:44:59 [main] INFO  com.AutoPOC.base.BaseTest - Successfully logged in as: sriUser@demoshop.com
 2025-03-09 17:45:00 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Category is clicked
 2025-03-09 17:45:03 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Item added to cart
 2025-03-09 17:45:04 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Shopping cart button is clicked
@@ -582,7 +582,7 @@ java.io.FileNotFoundException: src\test\resources\transactionalData.xlsx (The pr
 2025-03-09 17:45:08 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Checkout button clicked
 2025-03-09 17:45:08 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Checkout page is visible
 2025-03-09 17:45:09 [main] INFO  c.A.p.AddProductsToCartAndPlaceOrder - Billing continue button clicked
-2025-03-09 17:45:17 [main] INFO  com.AutoPOC.utils.DriverFactory - WebDriver quit successfully.
-2025-03-09 17:45:17 [main] INFO  com.AutoPOC.BaseTest - WebDriver quit successfully.
-2025-03-09 17:45:17 [main] INFO  com.AutoPOC.BaseTest - Test Execution Ended at: 2025-03-09 17:45:17
-2025-03-09 17:45:17 [main] INFO  com.AutoPOC.BaseTest - Total Execution Time: 00 min, 50 sec
+2025-03-09 17:45:17 [main] INFO  com.AutoPOC.utils.core.DriverFactory - WebDriver quit successfully.
+2025-03-09 17:45:17 [main] INFO  com.AutoPOC.base.BaseTest - WebDriver quit successfully.
+2025-03-09 17:45:17 [main] INFO  com.AutoPOC.base.BaseTest - Test Execution Ended at: 2025-03-09 17:45:17
+2025-03-09 17:45:17 [main] INFO  com.AutoPOC.base.BaseTest - Total Execution Time: 00 min, 50 sec

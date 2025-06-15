@@ -1,7 +1,8 @@
 package com.AutoPOC.pages;
 
-import com.AutoPOC.BasePage;
-import org.openqa.selenium.*;
+import com.AutoPOC.base.BasePage;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
@@ -12,12 +13,14 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Page object that encapsulates all actions related to
- * adding products to cart and completing the order process.
+ * Page Object Model class that manages actions related to adding products to the cart
+ * and completing the checkout and order placement process on the e-commerce platform.
  */
 public class AddProductsToCartAndPlaceOrder extends BasePage {
 
     private static final Logger logger = LoggerFactory.getLogger(AddProductsToCartAndPlaceOrder.class);
+
+    // WebElements Declaration
 
     @FindBy(css = "div.header-links a.account")
     private WebElement accountLink;
@@ -89,51 +92,66 @@ public class AddProductsToCartAndPlaceOrder extends BasePage {
 
     // ─── Workflow Methods ───────────────────────────────────────────────
 
+    /**
+     * Deletes an existing address if available, accepts alert, refreshes the page,
+     * and proceeds to product selection if no addresses are left.
+     *
+     * @throws InterruptedException if thread is interrupted during sleep
+     */
     public void deleteAddress() throws InterruptedException {
         click(accountLink, "Clicked Account link");
         click(addressesLink, "Clicked Addresses link");
 
-        if (isDisplayed(deleteAddressButton, 5)) {
+        if (isDisplayed(deleteAddressButton)) {
             deleteAddressButton.click();
-            logger.info("Clicked delete button");
+            log("Clicked delete address button");
 
             Alert alert = driver.switchTo().alert();
-            logger.info("Alert displayed: {}", alert.getText());
+            log("Alert displayed: " + alert.getText());
             alert.accept();
-            logger.info("Alert accepted");
+            log("Alert accepted");
 
             driver.navigate().refresh();
-            logger.info("Page refreshed using navigate().refresh()");
+            log("Page refreshed after deleting address");
 
             Thread.sleep(2000);
             boolean deleted = waitUntilElementGone(deleteAddressButton);
-            logger.info(deleted ? "Address deleted successfully." : "Delete button still visible or address block not cleared.");
+            log(deleted ? "Address deleted successfully." : "Delete button still visible after delete attempt.");
         }
 
         if (getNumberOfAddresses() == 0) {
-            logger.info("No address found. Proceeding to product selection.");
+            log("No address found. Proceeding to product selection.");
             selectProductBasedOnInputData();
         } else {
-            logger.info("Address still present, skipping product selection.");
+            log("Address still present, skipping product selection.");
         }
     }
 
+    /**
+     * Accepts the Terms of Service during checkout.
+     */
     public void clickTermsOfServiceButton() {
         click(termsOfService, "Terms of service accepted");
     }
 
+    /**
+     * Attempts to click the confirm order button; retries with wait if necessary.
+     */
     public void checkoutConfirmation() {
         try {
             confirmOrderButton.click();
-            logger.info("Confirm order clicked immediately without wait");
+            log("Confirm order clicked immediately without wait");
         } catch (Exception e) {
-            logger.warn("Immediate click failed, retrying with wait...");
-            waitUntilVisible(confirmOrderButton, 5);
-            waitUntilClickable(confirmOrderButton, 5);
+            log("Immediate click failed, retrying with wait...");
+            waitUntilVisible(confirmOrderButton);
+            waitUntilClickable(confirmOrderButton);
             confirmOrderButton.click();
         }
     }
 
+    /**
+     * Navigates through category, subcategory, and product based on input data.
+     */
     public void selectProductBasedOnInputData() {
         Map<String, String> data = getInputData();
         clickBy("Category", data.get("Category"), "//ul[@class='top-menu']//a[normalize-space()='%s']");
@@ -141,20 +159,38 @@ public class AddProductsToCartAndPlaceOrder extends BasePage {
         clickBy("Product title", data.get("Product title"), "//h2[@class='product-title']/a[contains(text(),'%s')]");
     }
 
+    /**
+     * Waits until the checkout page is fully visible.
+     */
     public void waitForCheckoutPageVisible() {
-        waitUntilVisible(checkoutHeader, 7);
-        logger.info("Checkout page is visible");
+        waitUntilVisible(checkoutHeader);
+        log("Checkout page is visible");
     }
 
+    /**
+     * Adds a product to the cart and navigates to the shopping cart page.
+     */
     public void addToCartAndGoToCart() {
+        scrollIntoView(addToCartButton);
         click(addToCartButton, "Add to Cart clicked");
+        // Wait for either cart count to update, toast to appear, or cart button to be clickable
+        waitUntilClickable(shoppingCartButton, 7);  // Custom timeout if needed
+        scrollIntoView(shoppingCartButton);
         click(shoppingCartButton, "Shopping Cart clicked");
     }
 
+    /**
+     * Clicks on the 'Estimate Shipping' button during checkout.
+     */
     public void clickOnEstimateShippingButton() {
         click(estimateShippingButton, "Estimate shipping button clicked");
     }
 
+    /**
+     * Fills billing and shipping details using synthetic input data.
+     *
+     * @throws InterruptedException if thread is interrupted during sleep
+     */
     public void fillBillingDetailsFromInput() throws InterruptedException {
         Map<String, String> d = getInputData();
         logger.info("---- synthetic inputData keys&values ----");
@@ -172,38 +208,60 @@ public class AddProductsToCartAndPlaceOrder extends BasePage {
         sendKeys(billingZipPostalCode, d.get("Zip"));
         sendKeys(billingPhoneNumber, d.get("Phone"));
 
-        logger.info("Filled billing & shipping details");
+        log("Filled billing and shipping details");
     }
 
+    /**
+     * Clicks through all required 'Continue' buttons during the checkout steps.
+     */
     public void proceedThroughCheckout() {
         for (WebElement btn : continueButtons) {
             click(btn, "Clicked continue button");
         }
     }
 
+    /**
+     * Clicks on the 'Checkout' button from the cart page.
+     */
     public void clickCheckoutButton() {
         click(checkoutButton, "Checkout button clicked");
     }
 
+    /**
+     * Verifies that the order has been successfully placed by checking the success message.
+     */
     public void verifyOrderSuccessMessage() {
-        waitUntilVisible(successMessage, 10);
+        waitUntilVisible(successMessage);
         waitUntilTextPresent(successMessage, "Your order has been successfully processed!", 10);
-        logger.info("Order success message verified");
+        log("Order success message verified");
     }
 
     // ─── Helper Methods ────────────────────────────────────────────────
 
+    /**
+     * Selects a state from the dropdown based on input. If not provided, selects a random available state.
+     *
+     * @param state the state to select or null to select randomly
+     * @throws InterruptedException if thread is interrupted during sleep
+     */
     private void selectStateOption(String state) throws InterruptedException {
         var select = new Select(stateDropdown);
         Thread.sleep(3000);
         var opts = select.getOptions();
+
         if (state != null && !state.isBlank()) {
             select.selectByVisibleText(state);
-            logger.info("Explicitly selected state: {}", state);
-        } else if (!opts.isEmpty()) {
-            String random = opts.get(new Random().nextInt(opts.size())).getText();
-            select.selectByVisibleText(random);
-            logger.info("Random state selected: {}", random);
+            log("Explicitly selected state: " + state);
+        } else {
+            List<String> stateOptions = opts.stream()
+                    .map(WebElement::getText)
+                    .filter(s -> !s.isBlank())
+                    .toList();
+            if (!stateOptions.isEmpty()) {
+                String random = stateOptions.get(new Random().nextInt(stateOptions.size()));
+                select.selectByVisibleText(random);
+                log("Random state selected: " + random);
+            }
         }
     }
 }

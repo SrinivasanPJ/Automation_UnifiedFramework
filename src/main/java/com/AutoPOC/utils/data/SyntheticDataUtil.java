@@ -1,4 +1,8 @@
-package com.AutoPOC.utils;
+package com.AutoPOC.utils.data;
+
+import com.AutoPOC.config.ConfigReader;
+import com.AutoPOC.utils.reporting.LogUtil;
+import com.AutoPOC.utils.excel.ExcelReaderUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -20,13 +24,16 @@ public class SyntheticDataUtil {
      * @return Map of column name to cell value for the matched row
      */
     public static Map<String, String> getInputDataById(String inputId) {
-        return ExcelReaderUtil.getRowByKey(
+        //LogUtil.log(SyntheticDataUtil.class, "Fetching input data for ID: " + inputId);
+        Map<String, String> inputData = ExcelReaderUtil.getRowByKey(
                 FILE_PATH,
                 SHEET_NAME,
                 INPUT_ID_COLUMN_IDX,
                 inputId,
                 1 // Header row is at index 1 (Excel row 2)
         );
+        //LogUtil.log(SyntheticDataUtil.class, "Input data retrieved successfully for ID: " + inputId);
+        return inputData;
     }
 
     /**
@@ -36,6 +43,7 @@ public class SyntheticDataUtil {
      * @return Object[][] containing all Input IDs in the sheet
      */
     public static Object[][] getAllInputIDs() {
+        LogUtil.log(SyntheticDataUtil.class, "Fetching all Input IDs from synthetic sheet...");
         List<Map<String, String>> rows = ExcelReaderUtil.getAllRows(FILE_PATH, SHEET_NAME);
         Object[][] out = new Object[rows.size()][1];
 
@@ -43,6 +51,7 @@ public class SyntheticDataUtil {
             out[i][0] = rows.get(i).get("Input ID");
         }
 
+        LogUtil.log(SyntheticDataUtil.class, "Total Input IDs found: " + rows.size());
         return out;
     }
 }

@@ -42,3 +42,14 @@ logs/*.log
 # Ignore Excel temp/lock files
 ~$*.xlsx
 
+# Ignore generated ExtentReports
+/reports/
+!reports/.gitkeep
+
+# Ignore screenshots
+/screenshots/
+!screenshots/.gitkeep
+
+# Ignore logs (already added, but make it precise)
+logs/
+
