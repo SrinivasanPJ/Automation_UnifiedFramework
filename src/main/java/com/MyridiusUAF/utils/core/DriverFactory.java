@@ -1,7 +1,7 @@
-package com.AutoPOC.utils.core;
+package com.MyridiusUAF.utils.core;
 
-import com.AutoPOC.config.ConfigReader;
-import com.AutoPOC.utils.reporting.LogUtil;
+import com.MyridiusUAF.config.ConfigReader;
+import com.MyridiusUAF.utils.reporting.LogUtil;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;

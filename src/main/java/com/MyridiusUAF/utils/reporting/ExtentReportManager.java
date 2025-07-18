@@ -1,6 +1,6 @@
-package com.AutoPOC.utils.reporting;
+package com.MyridiusUAF.utils.reporting;
 
-import com.AutoPOC.config.ConfigReader;
+import com.MyridiusUAF.config.ConfigReader;
 import com.aventstack.extentreports.*;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;

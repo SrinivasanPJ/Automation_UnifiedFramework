@@ -1,7 +1,7 @@
-package com.AutoPOC.pages;
+package com.MyridiusUAF.pages;
 
-import com.AutoPOC.base.BasePage;
-import com.AutoPOC.utils.data.OrderDataUtil;
+import com.MyridiusUAF.base.BasePage;
+import com.MyridiusUAF.utils.data.OrderDataUtil;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;

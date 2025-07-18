@@ -1,4 +1,4 @@
-package com.AutoPOC.utils.reporting;
+package com.MyridiusUAF.utils.reporting;
 
 import com.aventstack.extentreports.Status;
 import org.slf4j.LoggerFactory;

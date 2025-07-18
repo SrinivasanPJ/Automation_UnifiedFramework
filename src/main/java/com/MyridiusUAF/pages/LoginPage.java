@@ -1,6 +1,6 @@
-package com.AutoPOC.pages;
+package com.MyridiusUAF.pages;
 
-import com.AutoPOC.base.BasePage;
+import com.MyridiusUAF.base.BasePage;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 

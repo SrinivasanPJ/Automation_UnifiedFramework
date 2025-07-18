@@ -1,8 +1,8 @@
-package com.AutoPOC.utils.data;
+package com.MyridiusUAF.utils.data;
 
-import com.AutoPOC.config.ConfigReader;
-import com.AutoPOC.utils.reporting.LogUtil;
-import com.AutoPOC.utils.excel.ExcelReaderUtil;
+import com.MyridiusUAF.config.ConfigReader;
+import com.MyridiusUAF.utils.reporting.LogUtil;
+import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
 
 import java.util.List;
 import java.util.Map;

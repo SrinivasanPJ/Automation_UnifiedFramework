@@ -1,6 +1,6 @@
-package com.AutoPOC.config;
+package com.MyridiusUAF.config;
 
-import com.AutoPOC.utils.reporting.LogUtil;
+import com.MyridiusUAF.utils.reporting.LogUtil;
 
 import java.io.FileInputStream;
 import java.io.IOException;

@@ -1,9 +1,9 @@
-package com.AutoPOC.base;
+package com.MyridiusUAF.base;
 
-import com.AutoPOC.utils.context.TestContextManager;
-import com.AutoPOC.utils.core.DriverFactory;
-import com.AutoPOC.utils.reporting.ExtentReportManager;
-import com.AutoPOC.utils.reporting.LogUtil;
+import com.MyridiusUAF.utils.context.TestContextManager;
+import com.MyridiusUAF.utils.core.DriverFactory;
+import com.MyridiusUAF.utils.reporting.ExtentReportManager;
+import com.MyridiusUAF.utils.reporting.LogUtil;
 import com.github.javafaker.Faker;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;

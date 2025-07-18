@@ -1,6 +1,6 @@
-package com.AutoPOC.utils.core;
+package com.MyridiusUAF.utils.core;
 
-import com.AutoPOC.base.BasePage;
+import com.MyridiusUAF.base.BasePage;
 import org.openqa.selenium.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

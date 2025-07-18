@@ -1,10 +1,10 @@
-package com.AutoPOC.tests.SystemTest;
+package com.MyridiusUAF.tests.SystemTest;
 
-import com.AutoPOC.base.BaseTest;
-import com.AutoPOC.config.ConfigReader;
-import com.AutoPOC.utils.excel.ExcelColumnIndex;
-import com.AutoPOC.utils.excel.ExcelReaderUtil;
-import com.AutoPOC.utils.excel.ExcelUtil;
+import com.MyridiusUAF.base.BaseTest;
+import com.MyridiusUAF.config.ConfigReader;
+import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
+import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
+import com.MyridiusUAF.utils.excel.ExcelUtil;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;

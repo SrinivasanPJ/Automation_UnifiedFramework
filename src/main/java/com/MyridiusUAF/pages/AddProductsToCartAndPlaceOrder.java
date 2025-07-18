@@ -1,7 +1,7 @@
-package com.AutoPOC.pages;
+package com.MyridiusUAF.pages;
 
-import com.AutoPOC.base.BasePage;
-import com.AutoPOC.utils.core.ScreenshotUtil;
+import com.MyridiusUAF.base.BasePage;
+import com.MyridiusUAF.utils.core.ScreenshotUtil;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import static com.AutoPOC.utils.core.DriverFactory.getDriver;
+import static com.MyridiusUAF.utils.core.DriverFactory.getDriver;
 import static java.lang.Thread.sleep;
 
 /**

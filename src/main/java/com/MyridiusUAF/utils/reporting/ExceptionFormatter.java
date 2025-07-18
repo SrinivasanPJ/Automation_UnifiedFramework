@@ -1,4 +1,4 @@
-package com.AutoPOC.utils.reporting;
+package com.MyridiusUAF.utils.reporting;
 
 import java.util.Arrays;
 

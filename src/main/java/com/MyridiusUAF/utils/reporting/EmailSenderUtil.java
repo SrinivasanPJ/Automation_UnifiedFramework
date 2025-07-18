@@ -1,6 +1,6 @@
-package com.AutoPOC.utils.reporting;
+package com.MyridiusUAF.utils.reporting;
 
-import com.AutoPOC.config.ConfigReader;
+import com.MyridiusUAF.config.ConfigReader;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
