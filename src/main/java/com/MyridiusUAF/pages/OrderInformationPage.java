@@ -16,7 +16,7 @@ import java.util.Date;
  */
 public class OrderInformationPage extends BasePage {
 
-    @FindBy(xpath = "//a[normalize-space()='Click here for order details.']")
+    @FindBy(xpath = "//a[normalize-space()='Click here for order details.'] | (//input[@value='Details'])[1]")
     private WebElement orderDetailsLink;
 
     @FindBy(css = "div.order-number strong")

@@ -7,7 +7,6 @@ import com.AutoPOC.pages.OrderInformationPage;
 import com.AutoPOC.utils.context.TestContextManager;
 import com.AutoPOC.utils.context.TestDataKeys;
 import com.AutoPOC.utils.core.DriverFactory;
-import com.AutoPOC.utils.core.PopupHandler;
 import com.AutoPOC.utils.core.ScreenshotUtil;
 import com.AutoPOC.utils.data.ExecutionDataUtil;
 import com.AutoPOC.utils.data.SyntheticDataUtil;
@@ -143,7 +142,7 @@ public abstract class BaseTest {
         try {
             loginPage.login(username, password);
             logger.info("Login successful for user: {}", username);
-            PopupHandler.dismissSavePasswordPopup();
+            //PopupHandler.dismissSavePasswordPopup();
         } catch (Exception e) {
             logger.error("Login failed for user: {}", username, e);
             throw new RuntimeException("Login failed", e);

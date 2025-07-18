@@ -3,10 +3,14 @@ package com.AutoPOC.base;
 import com.AutoPOC.utils.context.TestContextManager;
 import com.AutoPOC.utils.core.DriverFactory;
 import com.AutoPOC.utils.reporting.ExtentReportManager;
+import com.AutoPOC.utils.reporting.LogUtil;
+import com.github.javafaker.Faker;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Map;
@@ -17,6 +21,7 @@ import java.util.Map;
  * Encapsulates common actions and utility methods to reduce duplication and promote reusable, readable code.
  */
 public abstract class BasePage {
+    private static final Logger logger = LoggerFactory.getLogger(BasePage.class);
 
     protected final WebDriver driver;
     private static final int DEFAULT_TIMEOUT = 10;
@@ -59,6 +64,18 @@ public abstract class BasePage {
      */
     public void click(WebElement element, String logMsg) {
         waitUntilClickable(element, DEFAULT_TIMEOUT).click();
+        log(logMsg);
+    }
+
+    /**
+     * Clicks on the element found by the given locator and logs the action.
+     *
+     * @param locator the By locator of the element to click
+     * @param logMsg  the message to log after the click
+     */
+    public void click(By locator, String logMsg) {
+        WebElement element = waitUntilClickable(locator, DEFAULT_TIMEOUT);
+        element.click();
         log(logMsg);
     }
 
@@ -110,16 +127,22 @@ public abstract class BasePage {
     }
 
     /**
-     * Waits until a WebElement is no longer visible.
+     * Waits until a WebElement is no longer visible (invisible in DOM or hidden via style).
      *
      * @param element the WebElement to monitor
-     * @return true if the element becomes invisible; false otherwise
+     * @return true if the element becomes invisible within timeout; false otherwise
      */
     public boolean waitUntilElementGone(WebElement element) {
         try {
-            return new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_TIMEOUT))
+            boolean isGone = new WebDriverWait(driver, Duration.ofSeconds(DEFAULT_TIMEOUT))
                     .until(ExpectedConditions.invisibilityOf(element));
+            logger.info("Element became invisible: {}", element);
+            return isGone;
         } catch (TimeoutException e) {
+            logger.warn("Timeout: Element did not disappear: {}", element);
+            return false;
+        } catch (Exception e) {
+            logger.error("Unexpected error while waiting for element to disappear: {}", e.getMessage());
             return false;
         }
     }
@@ -127,7 +150,7 @@ public abstract class BasePage {
     // ───── Dynamic Actions ─────────────────────────────────────────────
 
     /**
-     * Builds a dynamic XPath using the raw value and clicks the resulting element.
+     * Builds a dynamic XPath using the raw value, waits for visibility and clickability, then clicks it.
      *
      * @param fieldName     name for logging purposes
      * @param rawValue      the value to inject into the XPath
@@ -137,8 +160,15 @@ public abstract class BasePage {
         if (rawValue == null || rawValue.isBlank()) {
             throw new IllegalArgumentException(fieldName + " is missing!");
         }
+
         String xpath = String.format(xpathTemplate, rawValue.trim());
-        click(driver.findElement(By.xpath(xpath)), "Clicked " + fieldName + ": " + rawValue);
+        By locator = By.xpath(xpath);
+
+        log("Waiting for " + fieldName + ": " + rawValue);
+        WebElement element = waitUntilClickable(locator, DEFAULT_TIMEOUT);
+        scrollIntoView(element); // Ensures it’s visible in viewport
+        element.click();
+        log("Clicked " + fieldName + ": " + rawValue);
     }
 
     /**
@@ -148,6 +178,23 @@ public abstract class BasePage {
      */
     public void scrollIntoView(WebElement element) {
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+    }
+
+    /**
+     * Scrolls the page to bring the element into view using its locator.
+     *
+     * @param locator the By locator of the element
+     */
+    public void scrollIntoView(By locator) {
+        WebElement element = driver.findElement(locator);
+        scrollIntoView(element);
+    }
+
+    public void clickBy(By locator) {
+        WebElement element = waitUntilClickable(locator, DEFAULT_TIMEOUT);
+        scrollIntoView(element);
+        element.click();
+        log("Clicked element by locator: " + locator);
     }
 
     /**
@@ -175,7 +222,11 @@ public abstract class BasePage {
      * @return true if at least one match is found; false otherwise
      */
     public boolean isElementPresent(By locator) {
-        return !driver.findElements(locator).isEmpty();
+        try {
+            return driver.findElement(locator).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
 
     /**
@@ -256,6 +307,30 @@ public abstract class BasePage {
     }
 
     /**
+     * Waits until the element located by the given locator is visible using a custom timeout.
+     *
+     * @param locator the By locator to wait for
+     * @param timeout timeout in seconds
+     * @return the visible WebElement
+     */
+    protected WebElement waitUntilVisible(By locator, int timeout) {
+        return new WebDriverWait(driver, Duration.ofSeconds(timeout))
+                .until(ExpectedConditions.visibilityOfElementLocated(locator));
+    }
+
+    /**
+     * Waits until the element located by the given locator is clickable using a custom timeout.
+     *
+     * @param locator the By locator to wait for
+     * @param timeout timeout in seconds
+     * @return the clickable WebElement
+     */
+    protected WebElement waitUntilClickable(By locator, int timeout) {
+        return new WebDriverWait(driver, Duration.ofSeconds(timeout))
+                .until(ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    /**
      * Waits until specific text is present within the WebElement.
      *
      * @param element the WebElement to inspect
@@ -276,5 +351,82 @@ public abstract class BasePage {
      */
     public int getNumberOfAddresses() {
         return driver.findElements(By.xpath("//div[@class='address-list']//div[contains(@class, 'section')]")).size();
+    }
+
+    /**
+     * Closes the top notification banner (e.g., "Product added to cart") if it is displayed.
+     * Waits until the banner is no longer visible before proceeding.
+     */
+    public void closeNotificationIfPresent() {
+        try {
+            WebElement bar = driver.findElement(By.id("bar-notification"));
+            WebElement closeBtn = bar.findElement(By.className("close"));
+
+            if (bar.isDisplayed() && closeBtn.isDisplayed()) {
+                closeBtn.click();
+                waitUntilElementGone(bar); // Wait until fade out is complete
+                logger.info("Notification banner closed successfully.");
+            }
+        } catch (NoSuchElementException | TimeoutException ignored) {
+            logger.debug("Notification banner not present or already dismissed.");
+        } catch (Exception e) {
+            logger.warn("Error while closing notification banner: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Waits until an element located by the given locator is no longer visible on the page.
+     *
+     * @param locator By locator of the element to wait for
+     * @param timeout Timeout in seconds
+     * @return true if element disappears within timeout; false otherwise
+     */
+    public boolean waitUntilGone(By locator, int timeout) {
+        try {
+            return new WebDriverWait(driver, Duration.ofSeconds(timeout))
+                    .until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch (TimeoutException e) {
+            log("Element with locator [" + locator.toString() + "] did not disappear within " + timeout + " seconds.");
+            return false;
+        }
+    }
+
+    /**
+     * Overloaded method with default timeout.
+     */
+    public boolean waitUntilGone(By locator) {
+        return waitUntilGone(locator, DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * Waits until an element identified by locator becomes invisible.
+     */
+    public void waitForElementToDisappear(By locator, int timeoutSeconds) {
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds))
+                    .until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch (TimeoutException e) {
+            LogUtil.warn(getClass(), "Notification did not disappear within timeout.");
+        }
+    }
+
+    public void closeNotificationIfPresentAndWait() {
+        try {
+            WebElement bar = driver.findElement(By.id("bar-notification"));
+            if (bar.isDisplayed()) {
+                WebElement closeBtn = bar.findElement(By.className("close"));
+                closeBtn.click();
+                log("Clicked on Close button in notification banner.");
+                waitUntilGone(By.id("bar-notification"), 10);
+            }
+        } catch (NoSuchElementException ignored) {
+        } catch (Exception e) {
+            logger.warn("Error during closing banner: {}", e.getMessage());
+        }
+    }
+
+    public String generateRandomCardholderName() {
+        Faker faker = new Faker();
+        return faker.name().fullName();
     }
 }
