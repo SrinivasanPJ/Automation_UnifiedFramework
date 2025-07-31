@@ -62,4 +62,14 @@ public class LoginPage extends BasePage {
             return false;
         }
     }
+
+    public boolean clickLogoutLink() {
+        waitUntilClickable(logoutLink, 20);
+        click(logoutLink, "Clicked Logout Link");
+        try {
+            return loginLink.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

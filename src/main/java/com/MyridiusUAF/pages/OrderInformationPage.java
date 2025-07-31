@@ -1,10 +1,19 @@
 package com.MyridiusUAF.pages;
 
 import com.MyridiusUAF.base.BasePage;
+import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.utils.data.OrderDataUtil;
+import com.MyridiusUAF.utils.excel.E2EBindingColumnIndex;
+import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
+import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
+import com.MyridiusUAF.utils.excel.ExcelUtil;
+import com.MyridiusUAF.utils.reporting.LogUtil;
+import com.MyridiusUAF.utils.test.TestTypeUtil;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
+import org.testng.ITestContext;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,5 +80,47 @@ public class OrderInformationPage extends BasePage {
         String orderDate = getOrderDate();
         log("Saving to Excel → ID=" + orderId + "  Date=" + orderDate);
         OrderDataUtil.writeOrderData(orderId, orderDate, rowIndex);
+    }
+
+    /**
+     * Verifies order details by navigating to the order details link.
+     *
+     * @param context TestNG context (currently unused, but kept for possible future tracking)
+     */
+    public void verifyOrderDetails(ITestContext context) {
+        clickOrderDetailsLink();
+        // You can enhance this to check that details are visible/valid
+    }
+
+    /**
+     * Writes the order ID and order date to the result Excel file for tracking.
+     *
+     * @param context TestNG context for Excel row index storage
+     */
+    public void writeDataToFile(ITestContext context) {
+        String sheetName;
+        int runIdCol;
+        int startRowIndex;
+
+        if (TestTypeUtil.isFromSystemTestPackage()) {
+            sheetName = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
+            runIdCol = ExcelColumnIndex.RUN_ID;
+            startRowIndex = 2;
+        } else if (TestTypeUtil.isFromE2ETestPackage()) {
+            sheetName = ConfigReader.getProperty("End_To_End_Sheet_Name");
+            runIdCol = E2EBindingColumnIndex.RUN_ID;
+            startRowIndex = 1;
+        } else {
+            LogUtil.log(getClass(), "Skipping Excel row tracking: Unsupported test type");
+            return;
+        }
+
+        Sheet sheet = ExcelReaderUtil.getSheet(
+                ConfigReader.getProperty("Test_Data_File_Path"),
+                sheetName
+        );
+        int rowIndex = ExcelUtil.findNextAvailableRow(sheet, runIdCol, startRowIndex);
+        context.setAttribute("ExcelRowIndex", rowIndex);
+        saveDetailsToExcel(rowIndex);
     }
 }

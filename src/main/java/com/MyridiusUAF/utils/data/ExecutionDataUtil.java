@@ -1,10 +1,12 @@
 package com.MyridiusUAF.utils.data;
 
 import com.MyridiusUAF.config.ConfigReader;
+import com.MyridiusUAF.utils.excel.E2EBindingColumnIndex;
 import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
 import com.MyridiusUAF.utils.excel.ExcelUtil;
 import com.MyridiusUAF.utils.reporting.ExtentReportManager;
 import com.MyridiusUAF.utils.reporting.LogUtil;
+import com.MyridiusUAF.utils.test.TestTypeUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.testng.ITestResult;
@@ -19,21 +21,29 @@ import java.time.format.DateTimeFormatter;
  * Utility class responsible for recording automation test execution metadata into an Excel file.
  * <p>
  * Captures details like Run ID, execution timestamp, status (Pass/Fail/Skipped), and failure reasons.
+ * <b>Enterprise best practices:</b>
+ * <ul>
+ *   <li>Non-instantiable static utility pattern</li>
+ *   <li>Detailed JavaDoc and inline comments</li>
+ *   <li>Strong config-driven design</li>
+ *   <li>Clear Excel column mapping</li>
+ *   <li>Defensive coding with logging</li>
+ * </ul>
  */
-public class ExecutionDataUtil {
+public final class ExecutionDataUtil {
 
     private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
     private static final String SHEET_NAME = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
 
-    /** -------------------------------------------------
-     *  Public Methods
-     *  ------------------------------------------------- */
+    /** Utility class; prevent instantiation. */
+    private ExecutionDataUtil() { }
 
     /**
-     * Writes execution metadata for a test case into the transactional Excel sheet.
+     * Writes execution data for the current test result into the Excel results sheet.
+     * Handles both system and E2E test packages, recording run metadata and any failure reason.
      *
-     * @param rowIndex The row number where data should be written
-     * @param result   TestNG ITestResult containing the execution outcome
+     * @param rowIndex Excel row index where data should be written
+     * @param result   TestNG test result
      */
     public static void writeExecutionData(int rowIndex, ITestResult result) {
         String execDate = getCurrentDate("MM/dd/yyyy");
@@ -43,9 +53,20 @@ public class ExecutionDataUtil {
         try (FileInputStream fis = new FileInputStream(FILE_PATH);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
-            Sheet sheet = workbook.getSheet(SHEET_NAME);
+            String sheetToUse;
+
+            if (TestTypeUtil.isSystemTestClass(result.getTestClass().getRealClass().getName())) {
+                sheetToUse = SHEET_NAME;
+            } else if (TestTypeUtil.isFromE2ETestPackage()) {
+                sheetToUse = ConfigReader.getProperty("End_To_End_Sheet_Name");
+            } else {
+                LogUtil.log(ExecutionDataUtil.class, "Skipping execution data write: Test is not from a supported package.");
+                return;
+            }
+
+            Sheet sheet = workbook.getSheet(sheetToUse);
             if (sheet == null) {
-                LogUtil.warn(ExecutionDataUtil.class, "Transactional sheet not found, skipping execution data write.");
+                LogUtil.warn(ExecutionDataUtil.class, "Sheet not found: " + sheetToUse + ". Skipping execution data write.");
                 return;
             }
 
@@ -54,20 +75,32 @@ public class ExecutionDataUtil {
                 row = sheet.createRow(rowIndex);
             }
 
-            String runId = "R" + (countExistingRunIds(sheet) + 1);
+            // Get next run ID (simple increment by max found)
+            int maxRunId = ExcelUtil.getMaxRunId(sheet, E2EBindingColumnIndex.RUN_ID, 2);
+            String runId = "R" + (maxRunId + 1);
+
             CellStyle style = createBorderStyle(workbook);
 
-            // Populate basic execution metadata
-            ExcelUtil.setCellValue(row, ExcelColumnIndex.RUN_ID, runId, style);
-            ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_DATE, execDate, style);
-            ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_TIME, execTime, style);
-            ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_STATUS, status, style);
+            // Write execution details (column index depends on test type)
+            if (ConfigReader.getProperty("End_To_End_Sheet_Name").equals(sheetToUse)) {
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.RUN_ID, runId, style);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_DATE, execDate, style);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_TIME, execTime, style);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_STATUS, status, style);
+            } else {
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.RUN_ID, runId, style);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_DATE, execDate, style);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_TIME, execTime, style);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_STATUS, status, style);
+            }
 
-            // Populate failure reason if applicable
-            if ("Fail".equalsIgnoreCase(status)) {
+            // If failed, log first-line failure reason (for system tests only)
+            if ("Fail".equalsIgnoreCase(status)
+                    && ConfigReader.getProperty("Transactional_Data_Sheet_Name").equals(sheetToUse)) {
                 writeFailureReason(sheet, row, result, workbook);
             }
 
+            // Save to disk (flush)
             try (FileOutputStream fos = new FileOutputStream(FILE_PATH)) {
                 workbook.write(fos);
             }
@@ -80,10 +113,6 @@ public class ExecutionDataUtil {
             LogUtil.error(ExecutionDataUtil.class, "Failed to write execution data to Excel.", e);
         }
     }
-
-    /** -------------------------------------------------
-     *  Private Helper Methods
-     *  ------------------------------------------------- */
 
     /**
      * Writes the failure reason (first line of exception) into Excel if a test fails.
@@ -110,30 +139,7 @@ public class ExecutionDataUtil {
     }
 
     /**
-     * Counts the number of existing Run IDs (non-empty) in the sheet starting from row 2.
-     *
-     * @param sheet The sheet to inspect
-     * @return Count of Run IDs
-     */
-    private static int countExistingRunIds(Sheet sheet) {
-        int count = 0;
-        for (int i = 2; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row != null) {
-                Cell cell = row.getCell(ExcelColumnIndex.RUN_ID, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                if (cell != null && !cell.toString().trim().isEmpty()) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    /**
      * Maps TestNG test result status to human-readable status.
-     *
-     * @param result TestNG ITestResult
-     * @return "Pass", "Fail", "Skipped", or "Unknown"
      */
     private static String getStatus(ITestResult result) {
         return switch (result.getStatus()) {
@@ -146,9 +152,6 @@ public class ExecutionDataUtil {
 
     /**
      * Returns the current date/time in the specified format.
-     *
-     * @param pattern DateTimeFormatter pattern
-     * @return Formatted current date/time
      */
     private static String getCurrentDate(String pattern) {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern));
@@ -156,9 +159,6 @@ public class ExecutionDataUtil {
 
     /**
      * Creates a standard bordered cell style for Excel.
-     *
-     * @param workbook Workbook instance
-     * @return Bordered CellStyle
      */
     private static CellStyle createBorderStyle(Workbook workbook) {
         CellStyle style = workbook.createCellStyle();

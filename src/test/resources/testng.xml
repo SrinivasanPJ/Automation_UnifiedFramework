@@ -1,8 +1,21 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite name="RunAllInputTests" parallel="false">
+    <!-- System Tests -->
     <test name="SyntheticOrderTests">
         <packages>
-            <package name="com.AutoPOC.tests.SystemTest"/>
+            <package name="com.MyridiusUAF.SystemTest"/>
         </packages>
     </test>
+
+    <!-- End-to-End Tests -->
+    <test name="E2EFlowTests">
+        <classes>
+            <class name="com.MyridiusUAF.EndToEnd.RegisterToReorderE2ETest"/>
+        </classes>
+    </test>
+
+    <listeners>
+        <listener class-name="com.MyridiusUAF.utils.reporting.JiraListener"/>
+    </listeners>
+
 </suite>

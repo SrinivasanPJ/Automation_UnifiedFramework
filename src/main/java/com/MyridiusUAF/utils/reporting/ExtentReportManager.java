@@ -219,6 +219,21 @@ public enum ExtentReportManager {
     }
 
     /**
+     * Returns the file:// URL to the HTML report for use in logs, Jira comments, etc.
+     * This URL is clickable in most browsers and IDEs if the report exists on the current machine.
+     */
+    public String getReportUrl() {
+        if (this.reportPath == null) return "";
+        try {
+            java.io.File file = new java.io.File(this.reportPath);
+            return file.toURI().toString();  // e.g., file:///C:/.../reports/ExecutionReport_20250728_143840.html
+        } catch (Exception e) {
+            logger.warn("Unable to generate file:// URL for report", e);
+            return "";
+        }
+    }
+
+    /**
      * Flushes the ExtentReports data to disk.
      */
     public void flushReport() {

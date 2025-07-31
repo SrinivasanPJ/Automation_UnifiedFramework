@@ -1,52 +1,102 @@
 package com.MyridiusUAF.utils.excel;
 
-import com.MyridiusUAF.utils.reporting.LogUtil;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 
+/**
+ * Enterprise utility for Excel cell/row manipulation and searching using Apache POI.
+ * Used for result tracking and data-driven test management.
+ */
 public class ExcelUtil {
 
     /**
-     * Finds the next empty row in the sheet from the specified start row,
-     * checking if the given column index is blank.
+     * Finds the next available (empty) row in the sheet, starting from startRow,
+     * by looking for the last non-empty cell in the specified column (runIdCol).
      *
-     * @param sheet       The Excel sheet
-     * @param columnIndex The column index to check for blank cell
-     * @param startRow    Row index to start searching
-     * @return index of the next available row
+     * @param sheet     The Excel sheet
+     * @param runIdCol  Column index to check for filled/blank (typically Run ID col)
+     * @param startRow  Row index to start searching from (usually after header)
+     * @return          Index of next available row to write to (appends if full)
      */
-    public static int findNextAvailableRow(Sheet sheet, int columnIndex, int startRow) {
+    public static int findNextAvailableRow(Sheet sheet, int runIdCol, int startRow) {
+        int lastFilledRow = startRow - 1;
         for (int i = startRow; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
-
-            Cell cell = row.getCell(columnIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            if (cell == null || cell.toString().trim().isEmpty()) {
-                //LogUtil.log(ExcelUtil.class, "Next available row found at index: " + i);
-                return i;
+            Cell runIdCell = row.getCell(runIdCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (runIdCell != null && !runIdCell.toString().trim().isEmpty()) {
+                lastFilledRow = i;
             }
         }
-
-        int next = sheet.getLastRowNum() + 1;
-        //LogUtil.log(ExcelUtil.class, "Appending new row at index: " + next);
-        return next;
+        return lastFilledRow + 1;
     }
 
     /**
-     * Sets value in the given cell and applies style.
+     * Finds the maximum Run ID number present in the given column for all rows,
+     * expecting Run IDs like "R123".
      *
-     * @param row      Target row
-     * @param colIndex Column index
-     * @param value    Value to write
-     * @param style    Cell style
+     * @param sheet     Excel sheet
+     * @param runIdCol  Run ID column index
+     * @param startRow  Row to start (data rows, not header)
+     * @return          Highest Run ID integer found, or 0 if none
+     */
+    public static int getMaxRunId(Sheet sheet, int runIdCol, int startRow) {
+        int maxId = 0;
+        for (int i = startRow; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null) continue;
+            Cell runIdCell = row.getCell(runIdCol, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (runIdCell != null) {
+                String runIdVal = runIdCell.toString().trim();
+                if (runIdVal.startsWith("R")) {
+                    try {
+                        int num = Integer.parseInt(runIdVal.substring(1));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException ignored) {
+                        // Ignore non-numeric Run IDs
+                    }
+                }
+            }
+        }
+        return maxId;
+    }
+
+    /**
+     * Sets a cell's value and style in the given row and column index.
+     * Overwrites any existing cell content in that location.
+     *
+     * @param row      Row to update
+     * @param colIndex Zero-based column index
+     * @param value    String value to set
+     * @param style    CellStyle to apply
      */
     public static void setCellValue(Row row, int colIndex, String value, CellStyle style) {
-        Cell cell = row.createCell(colIndex);
-        cell.setCellValue(value);
-        cell.setCellStyle(style);
-
-        //LogUtil.log(ExcelUtil.class, "Set cell value: Row=" + row.getRowNum() + ", Col=" + colIndex + ", Value=" + value);
+        if (row == null) throw new IllegalArgumentException("Target row cannot be null.");
+        Cell cell = row.getCell(colIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        cell.setCellValue(value != null ? value : "");
+        if (style != null) {
+            cell.setCellStyle(style);
+        }
     }
+
+    /**
+     * Returns the column index for a header cell with the given name (case-insensitive).
+     * Throws if header not found.
+     *
+     * @param headerRow  Row containing headers (usually first row)
+     * @param headerName Header to find (case-insensitive)
+     * @return           Column index (zero-based)
+     */
+    public static int getColumnIndex(Row headerRow, String headerName) {
+        if (headerRow == null) throw new IllegalArgumentException("Header row cannot be null");
+        for (int i = 0; i < headerRow.getLastCellNum(); i++) {
+            String cellVal = headerRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).toString().trim();
+            if (cellVal.equalsIgnoreCase(headerName)) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Header not found: " + headerName);
+    }
+
+    // Prevent instantiation
+    private ExcelUtil() { }
 }

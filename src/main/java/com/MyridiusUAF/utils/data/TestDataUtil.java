@@ -6,13 +6,21 @@ import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class for fetching login test data from Excel.
+ * <p>
+ * Supports row-level lookup by TestID and bulk retrieval for DataProvider use.
+ */
 public class TestDataUtil {
 
-    private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
-    private static final String SHEET_NAME = ConfigReader.getProperty("Login_Data_Sheet_Name");
+    private static final String FILE_PATH   = ConfigReader.getProperty("Test_Data_File_Path");
+    private static final String SHEET_NAME  = ConfigReader.getProperty("Login_Data_Sheet_Name");
 
     /**
-     * Lookup a single row by TestID in Common_TestData
+     * Returns a map of column names to values for a specific TestID row in the login data sheet.
+     *
+     * @param testID The test case identifier (must match exactly in Excel).
+     * @return Map<String, String> representing all fields in that row, or empty map if not found.
      */
     public static Map<String, String> getTestCaseByTestID(String testID) {
         return ExcelReaderUtil.getRowByKey(
@@ -25,8 +33,10 @@ public class TestDataUtil {
     }
 
     /**
-     * Returns every TestID (first column) as a DataProvider array.
-     * e.g. { { "1" }, { "2" }, … }
+     * Fetches all TestIDs from the login data sheet for use in TestNG data providers.
+     * Each returned array contains a single TestID, e.g., { {"1"}, {"2"} }.
+     *
+     * @return 2D Object array suitable for TestNG DataProvider.
      */
     public static Object[][] getAllTestIDs() {
         List<Map<String, String>> rows = ExcelReaderUtil.getAllRows(FILE_PATH, SHEET_NAME);
