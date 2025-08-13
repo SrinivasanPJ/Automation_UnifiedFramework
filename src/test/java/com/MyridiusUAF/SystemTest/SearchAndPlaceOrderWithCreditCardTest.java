@@ -1,6 +1,7 @@
 package com.MyridiusUAF.SystemTest;
 
 import com.MyridiusUAF.base.BaseTest;
+import com.MyridiusUAF.utils.annotations.TestType;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
@@ -18,6 +19,7 @@ import org.testng.annotations.Test;
  * </ol>
  */
 // System test
+@TestType(TestType.Kind.SYSTEM)
 public class SearchAndPlaceOrderWithCreditCardTest extends BaseTest {
 
     /**
@@ -26,7 +28,7 @@ public class SearchAndPlaceOrderWithCreditCardTest extends BaseTest {
      * @param context TestNG context for tracking/excel
      */
     @Test(description = "Validates end-to-end order placement using product search and Credit Card payment.", priority = 1)
-    public void placeOrderWithProductSearchAndCreditCard(ITestContext context) throws InterruptedException {
+    public void placeOrderWithProductSearchAndCreditCard(ITestContext context) {
         // 1. Prepare user context and login
         initializeTestContext("1", "Ip1", context);
         performLogin("1");

@@ -10,7 +10,7 @@
     <!-- End-to-End Tests -->
     <test name="E2EFlowTests">
         <classes>
-            <class name="com.MyridiusUAF.EndToEnd.RegisterToReorderE2ETest"/>
+            <class name="com.MyridiusUAF.EndToEnd.EndToEndReorderFlowTest"/>
         </classes>
     </test>
 

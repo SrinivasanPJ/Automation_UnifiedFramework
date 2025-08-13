@@ -2,6 +2,7 @@ package com.MyridiusUAF.SystemTest;
 
 import com.MyridiusUAF.base.BaseTest;
 import com.MyridiusUAF.config.ConfigReader;
+import com.MyridiusUAF.utils.annotations.TestType;
 import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
 import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
 import com.MyridiusUAF.utils.excel.ExcelUtil;
@@ -22,6 +23,7 @@ import org.testng.annotations.Test;
  * The row index is tracked in TestNG context for post-test processing.
  */
  // System Test
+@TestType(TestType.Kind.SYSTEM)
 public class OrderDetailsTest extends BaseTest {
 
     /**

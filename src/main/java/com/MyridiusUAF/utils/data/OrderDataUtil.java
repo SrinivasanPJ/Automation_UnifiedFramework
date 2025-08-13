@@ -2,9 +2,9 @@ package com.MyridiusUAF.utils.data;
 
 import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.utils.excel.E2EBindingColumnIndex;
-import com.MyridiusUAF.utils.reporting.LogUtil;
 import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
 import com.MyridiusUAF.utils.excel.ExcelUtil;
+import com.MyridiusUAF.utils.reporting.LogUtil;
 import com.MyridiusUAF.utils.test.TestTypeUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -14,87 +14,78 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
- * Utility class to log Order ID and Order Date into Excel for each execution.
- * <p>
- * Writes data to Transactional or End-to-End sheets, supporting both system and E2E test flows.
- * <p>
- * <b>Enterprise Best Practices:</b>
+ * Writes Order ID and Order Date into the active results sheet:
  * <ul>
- *     <li>Non-instantiable static utility</li>
- *     <li>Clean, defensive file handling</li>
- *     <li>Full JavaDoc and inline comments</li>
- *     <li>Single responsibility, strong typing, config-driven</li>
+ *   <li>System tests → {@code Transactional_Data} sheet</li>
+ *   <li>E2E tests → {@code E2E Binding} sheet</li>
  * </ul>
+ * <p>
+ * <b>Note:</b> E2E-Binding sync is <i>not</i> performed here; it runs after execution
+ * data is written in {@link ExecutionDataUtil#writeExecutionData(int, org.testng.ITestResult)}.
+ * </p>
  */
 public final class OrderDataUtil {
 
+    // ---- Config constants (resolved once) ---------------------------------------
     private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
+    private static final String TXN_SHEET = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
+    private static final String E2E_SHEET = ConfigReader.getProperty("End_To_End_Sheet_Name");
 
-    // Prevent instantiation
-    private OrderDataUtil() {}
+    private OrderDataUtil() { /* utility class */ }
 
     /**
-     * Writes the given order number and order date into specified row in Excel.
+     * Writes the given order number and date to the provided row index on the active sheet.
+     * <p>Row creation is performed if it does not exist. Cell values are written with a thin
+     * border style, consistent with other writers.</p>
      *
-     * @param orderNum  Order ID string
-     * @param orderDate Order Date string (formatted)
-     * @param rowIndex  Target row index (zero-based)
+     * @param orderNum order identifier (e.g., "12345")
+     * @param orderDate date string in the expected external format (e.g., "MM/dd/yyyy")
+     * @param rowIndex zero-based row index to write to (caller decides which row)
      */
     public static void writeOrderData(String orderNum, String orderDate, int rowIndex) {
+        // Resolve target sheet based on package/type, preserving existing behavior.
+        final boolean isSystem = TestTypeUtil.isFromSystemTestPackage();
+        final boolean isE2E    = TestTypeUtil.isFromE2ETestPackage();
+        final String  sheetName = isSystem ? TXN_SHEET : (isE2E ? E2E_SHEET : null);
+
+        if (sheetName == null) {
+            LogUtil.log(OrderDataUtil.class, "Skipping order data write: unsupported package.");
+            return;
+        }
+
         try (FileInputStream fis = new FileInputStream(FILE_PATH);
              Workbook wb = new XSSFWorkbook(fis)) {
 
-            Sheet sheet;
-            // Select correct sheet depending on the current test package
-            if (TestTypeUtil.isFromSystemTestPackage()) {
-                sheet = wb.getSheet(ConfigReader.getProperty("Transactional_Data_Sheet_Name"));
-            } else if (TestTypeUtil.isFromE2ETestPackage()) {
-                sheet = wb.getSheet(ConfigReader.getProperty("End_To_End_Sheet_Name"));
-            } else {
-                LogUtil.log(OrderDataUtil.class, "Skipping order data write: Test is not from a supported package.");
-                return;
-            }
-
+            final Sheet sheet = wb.getSheet(sheetName);
             if (sheet == null) {
-                LogUtil.warn(OrderDataUtil.class, "Sheet not found, cannot write order data.");
+                LogUtil.warn(OrderDataUtil.class, "Sheet not found: " + sheetName + ". Cannot write order data.");
                 return;
             }
 
-            // Prepare row
             Row row = sheet.getRow(rowIndex);
-            if (row == null) {
-                row = sheet.createRow(rowIndex);
-            }
+            if (row == null) row = sheet.createRow(rowIndex);
 
-            CellStyle style = createBorderStyle(wb);
+            final CellStyle bordered = createBorderStyle(wb);
 
-            // Write data to right columns for System or E2E sheet
-            if (TestTypeUtil.isFromE2ETestPackage()) {
-                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.ORDER_ID, orderNum, style);
-                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.ORDER_DATE, orderDate, style);
+            if (isE2E) {
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.ORDER_ID,   orderNum,  bordered);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.ORDER_DATE, orderDate, bordered);
             } else {
-                ExcelUtil.setCellValue(row, ExcelColumnIndex.ORDER_ID, orderNum, style);
-                ExcelUtil.setCellValue(row, ExcelColumnIndex.ORDER_DATE, orderDate, style);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.ORDER_ID,   orderNum,  bordered);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.ORDER_DATE, orderDate, bordered);
             }
 
-            // Write changes to disk
             try (FileOutputStream out = new FileOutputStream(FILE_PATH)) {
                 wb.write(out);
             }
-
         } catch (IOException e) {
             LogUtil.error(OrderDataUtil.class, "Failed to write order data", e);
         }
     }
 
-    /**
-     * Creates a reusable cell style with borders for formatting Excel cells.
-     *
-     * @param wb Workbook context
-     * @return new bordered CellStyle
-     */
+    /** Creates a thin-bordered cell style (kept consistent with other writers). */
     private static CellStyle createBorderStyle(Workbook wb) {
-        CellStyle style = wb.createCellStyle();
+        final CellStyle style = wb.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);

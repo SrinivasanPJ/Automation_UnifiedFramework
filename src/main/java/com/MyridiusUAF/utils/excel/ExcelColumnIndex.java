@@ -31,6 +31,9 @@ public final class ExcelColumnIndex {
     /** Column index for failure reason or exception message ("Failure Reason"). */
     public static final int FAILURE_REASON = 11; // L
 
+    /** First data row index (0-based) for Transactional_Data sheet. */
+    public static final int FIRST_DATA_ROW_SYSTEM = 2; // rows 0..1 are headers
+
     /**
      * Private constructor to prevent instantiation.
      */

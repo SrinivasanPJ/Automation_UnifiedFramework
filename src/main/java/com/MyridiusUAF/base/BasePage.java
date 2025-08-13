@@ -3,7 +3,6 @@ package com.MyridiusUAF.base;
 import com.MyridiusUAF.utils.context.TestContextManager;
 import com.MyridiusUAF.utils.core.DriverFactory;
 import com.MyridiusUAF.utils.reporting.ExtentReportManager;
-import com.MyridiusUAF.utils.reporting.LogUtil;
 import com.github.javafaker.Faker;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -283,5 +282,83 @@ public abstract class BasePage {
     public String generateRandomCardholderName() {
         Faker faker = new Faker();
         return faker.name().fullName();
+    }
+
+    // ───── Frame Handling Utilities ─────────────────────────────────────
+
+    /**
+     * Switch to frame by index.
+     */
+    public void switchToFrame(int index) {
+        try {
+            driver.switchTo().frame(index);
+            log("Switched to frame by index: " + index);
+        } catch (NoSuchFrameException e) {
+            log("No frame found with index: " + index);
+            throw e;
+        }
+    }
+
+    /**
+     * Switch to frame by name or ID.
+     */
+    public void switchToFrame(String nameOrId) {
+        try {
+            driver.switchTo().frame(nameOrId);
+            log("Switched to frame by name/ID: " + nameOrId);
+        } catch (NoSuchFrameException e) {
+            log("No frame found with name/ID: " + nameOrId);
+            throw e;
+        }
+    }
+
+    /**
+     * Switch to frame by WebElement (default timeout).
+     */
+    public void switchToFrame(WebElement frameElement) {
+        switchToFrame(frameElement, DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * Switch to frame by WebElement with timeout.
+     */
+    public void switchToFrame(WebElement frameElement, int timeoutInSeconds) {
+        try {
+            waitUntilVisible(frameElement, timeoutInSeconds);  // Ensures frame is present
+            driver.switchTo().frame(frameElement);
+            log("Switched to frame via WebElement.");
+        } catch (NoSuchFrameException | StaleElementReferenceException e) {
+            log("Unable to switch to frame via WebElement.");
+            throw e;
+        }
+    }
+
+    /**
+     * Switch to frame by locator (default timeout).
+     */
+    public void switchToFrame(By locator) {
+        switchToFrame(locator, DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * Switch to frame by locator with timeout.
+     */
+    public void switchToFrame(By locator, int timeoutInSeconds) {
+        try {
+            WebElement frameElement = waitUntilVisible(locator, timeoutInSeconds);
+            driver.switchTo().frame(frameElement);
+            log("Switched to frame via locator: " + locator.toString());
+        } catch (NoSuchFrameException | TimeoutException e) {
+            log("Unable to switch to frame via locator: " + locator.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * Switch back to default content (main document).
+     */
+    public void switchToDefaultContent() {
+        driver.switchTo().defaultContent();
+        log("Switched to default content.");
     }
 }

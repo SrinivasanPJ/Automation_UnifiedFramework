@@ -28,6 +28,11 @@ public final class E2EBindingColumnIndex {
     /** Column index for order date. */
     public static final int ORDER_DATE  = 10;
 
+    /** Column index for failure reason. */
+    public static final int FAILURE_REASON = 11;  // L
+
+    public static final int FIRST_DATA_ROW_E2E = 1; // row 0 is header
+
     /**
      * Private constructor to prevent instantiation.
      */

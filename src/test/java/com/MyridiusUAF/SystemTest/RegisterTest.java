@@ -1,6 +1,7 @@
 package com.MyridiusUAF.SystemTest;
 
 import com.MyridiusUAF.base.BaseTest;
+import com.MyridiusUAF.utils.annotations.TestType;
 import com.MyridiusUAF.utils.data.RandomDataGenerator;
 import com.MyridiusUAF.utils.data.TestDataUpdater;
 import org.testng.ITestContext;
@@ -18,6 +19,7 @@ import org.testng.annotations.Test;
  * </ul>
  */
 // End to End test
+@TestType(TestType.Kind.SYSTEM)
 public class RegisterTest extends BaseTest {
 
     /**
@@ -34,7 +36,7 @@ public class RegisterTest extends BaseTest {
         // 2. Open registration page
         registerPage.clickRegisterLink();
         registerPage.waitForRegisterPage();
-        registerPage.selectGender("Male");
+        registerPage.selectGender("Male89");
 
         // 3. Generate and enter user data
         String firstName = RandomDataGenerator.getRandomFirstName();

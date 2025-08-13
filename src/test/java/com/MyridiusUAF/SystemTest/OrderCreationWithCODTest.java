@@ -1,6 +1,7 @@
 package com.MyridiusUAF.SystemTest;
 
 import com.MyridiusUAF.base.BaseTest;
+import com.MyridiusUAF.utils.annotations.TestType;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
@@ -17,6 +18,7 @@ import org.testng.annotations.Test;
  * Result and test evidence are automatically tracked in reporting and Excel.
  */
 // System Test
+@TestType(TestType.Kind.SYSTEM)
 public class OrderCreationWithCODTest extends BaseTest {
 
     /**

@@ -7,33 +7,34 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 /**
- * Page object for handling user registration workflow on the Demo Web Shop site.
- * <p>
- * Encapsulates interactions with registration fields, random data population,
- * and verification of successful registration. Updates the test data sheet
- * with generated email and password for reusability.
- * </p>
- * <b>Enterprise Standards Covered:</b>
+ * Page object for the Demo Web Shop registration workflow.
+ *
+ * <p><b>Responsibilities</b></p>
  * <ul>
- *   <li>Field encapsulation and workflow methods</li>
- *   <li>Clear action/result logging (without exposing sensitive info)</li>
- *   <li>Input validation for key fields</li>
- *   <li>Consistent JavaDoc documentation</li>
- *   <li>Hardcoded values refactored to constants where appropriate</li>
+ *   <li>Open registration form and populate fields</li>
+ *   <li>Generate random credentials for test reuse and persist them</li>
+ *   <li>Submit form and verify success message</li>
+ * </ul>
+ *
+ * <p><b>Notes</b></p>
+ * <ul>
+ *   <li>All public method names and behavior are preserved intentionally.</li>
+ *   <li>Sensitive values are masked in logs.</li>
  * </ul>
  */
 public class RegisterPage extends BasePage {
 
-    // --- Constants ---
+    // ---- Constants ----------------------------------------------------------
+
     private static final int DEFAULT_TIMEOUT_SEC = 20;
     private static final String REGISTRATION_SUCCESS_MSG = "Your registration completed";
-    private static final List<String> ALLOWED_GENDERS = Arrays.asList("male", "female");
+    private static final Set<String> ALLOWED_GENDERS = Set.of("male", "female");
 
-    // --- WebElements ---
+    // ---- Elements -----------------------------------------------------------
+
     @FindBy(xpath = "//a[normalize-space()='Register']")
     private WebElement registerLink;
 
@@ -61,106 +62,76 @@ public class RegisterPage extends BasePage {
     @FindBy(css = "div.result")
     private WebElement registerSuccessMessage;
 
-    // --- Page Actions ---
+    // ---- Public Actions -----------------------------------------------------
 
-    /**
-     * Clicks the Register link to open the registration form.
-     */
+    /** Opens the registration form. */
     public void clickRegisterLink() {
         waitUntilClickable(registerLink, DEFAULT_TIMEOUT_SEC);
         click(registerLink, "Clicked Register link");
     }
 
-    /**
-     * Waits until the Register page header is visible.
-     */
+    /** Waits until the Register page header is visible. */
     public void waitForRegisterPage() {
         waitUntilVisible(registerPage, DEFAULT_TIMEOUT_SEC);
         log("Register page is displayed.");
     }
 
     /**
-     * Selects the user's gender radio button.
-     * @param gender "male" or "female" (case-insensitive)
+     * Selects the user's gender radio.
+     * @param gender accepted values: "male" or "female" (case-insensitive)
      */
     public void selectGender(String gender) {
-        if (gender == null || gender.isBlank()) {
-            throw new IllegalArgumentException("Gender cannot be null or blank");
-        }
-        String normalized = gender.trim().toLowerCase();
+        String normalized = requireNonBlank(gender, "gender").trim().toLowerCase();
         if (!ALLOWED_GENDERS.contains(normalized)) {
             throw new IllegalArgumentException("Invalid gender: " + gender + ". Allowed: " + ALLOWED_GENDERS);
         }
-        String genderId = "gender-" + normalized;
-        By genderLocator = By.id(genderId);
+        By genderLocator = By.id("gender-" + normalized);
         click(genderLocator, "Selected gender: " + normalized);
     }
 
-    /**
-     * Enters the user's first name.
-     */
+    /** Enters the user's first name. */
     public void enterFirstName(String firstName) {
-        if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException("First name cannot be null or blank");
-        }
-        sendKeys(firstNameInput, firstName);
-        log("Entered first name: " + firstName);
+        String v = requireNonBlank(firstName, "firstName");
+        sendKeys(firstNameInput, v);
+        log("Entered first name: " + v);
     }
 
-    /**
-     * Enters the user's last name.
-     */
+    /** Enters the user's last name. */
     public void enterLastName(String lastName) {
-        if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("Last name cannot be null or blank");
-        }
-        sendKeys(lastNameInput, lastName);
-        log("Entered last name: " + lastName);
+        String v = requireNonBlank(lastName, "lastName");
+        sendKeys(lastNameInput, v);
+        log("Entered last name: " + v);
     }
 
-    /**
-     * Enters the user's email address.
-     */
+    /** Enters the user's email address. */
     public void enterEmail(String email) {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be null or blank");
-        }
-        sendKeys(emailInput, email);
-        log("Entered email: " + email);
+        String v = requireNonBlank(email, "email");
+        sendKeys(emailInput, v);
+        log("Entered email: " + v);
     }
 
-    /**
-     * Enters the user's password (masked in logs).
-     */
+    /** Enters the user's password (masked in logs). */
     public void enterPassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password cannot be null or blank");
-        }
-        sendKeys(passwordInput, password);
+        String v = requireNonBlank(password, "password");
+        sendKeys(passwordInput, v);
         log("Entered password: [PROTECTED]");
     }
 
-    /**
-     * Enters the user's password confirmation (masked in logs).
-     */
+    /** Enters the user's password confirmation (masked in logs). */
     public void enterConfirmPassword(String confirmPassword) {
-        if (confirmPassword == null || confirmPassword.isBlank()) {
-            throw new IllegalArgumentException("Confirm password cannot be null or blank");
-        }
-        sendKeys(confirmPasswordInput, confirmPassword);
+        String v = requireNonBlank(confirmPassword, "confirmPassword");
+        sendKeys(confirmPasswordInput, v);
         log("Entered confirm password: [PROTECTED]");
     }
 
-    /**
-     * Clicks the Register button to submit the form.
-     */
+    /** Submits the registration form. */
     public void clickRegisterButton() {
         click(registerButton, "Clicked Register button");
     }
 
     /**
-     * Verifies registration was successful, with timeout.
-     * @param timeoutSec Timeout in seconds.
+     * Verifies the success message appears within a timeout.
+     * @param timeoutSec timeout (seconds)
      */
     public void verifyRegistrationSuccess(int timeoutSec) {
         try {
@@ -170,17 +141,17 @@ public class RegisterPage extends BasePage {
             Assert.assertEquals(actual, REGISTRATION_SUCCESS_MSG, "Registration success message not found!");
         } catch (TimeoutException e) {
             log("Registration success message did not appear.");
-            Assert.fail("Registration success message did not appear within timeout!");
+            Assert.fail("Registration success message did not appear within timeout!", e);
         }
     }
 
     /**
      * Full registration workflow, including random data generation and Excel update.
      *
-     * @param gender     Gender ("male" or "female")
-     * @param firstName  User first name
-     * @param lastName   User last name
-     * @param timeoutSec Timeout for registration success message
+     * @param gender     gender ("male" or "female")
+     * @param firstName  first name
+     * @param lastName   last name
+     * @param timeoutSec timeout for the success check
      */
     public void register(String gender, String firstName, String lastName, int timeoutSec) {
         clickRegisterLink();
@@ -189,11 +160,9 @@ public class RegisterPage extends BasePage {
         enterFirstName(firstName);
         enterLastName(lastName);
 
-        // Generate and log random test data (email/password)
+        // Generate random credentials and persist for reuse/traceability.
         String randomEmail = RandomDataGenerator.getRandomEmail();
         String randomPassword = RandomDataGenerator.getRandomPassword(10);
-
-        // Update Excel before registration for traceability
         TestDataUpdater.updateUsernameAndPassword("1", randomEmail, randomPassword);
 
         enterEmail(randomEmail);
@@ -201,5 +170,15 @@ public class RegisterPage extends BasePage {
         enterConfirmPassword(randomPassword);
         clickRegisterButton();
         verifyRegistrationSuccess(timeoutSec);
+    }
+
+    // ---- Internal Helpers ---------------------------------------------------
+
+    /** Ensures a string is non-null and non-blank; returns the trimmed value. */
+    private static String requireNonBlank(String value, String name) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(name + " cannot be null or blank");
+        }
+        return value;
     }
 }

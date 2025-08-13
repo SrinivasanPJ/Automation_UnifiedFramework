@@ -18,89 +18,112 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Utility class responsible for recording automation test execution metadata into an Excel file.
- * <p>
- * Captures details like Run ID, execution timestamp, status (Pass/Fail/Skipped), and failure reasons.
- * <b>Enterprise best practices:</b>
+ * Writes execution metadata to Excel for both Transactional (System) and E2E sheets:
  * <ul>
- *   <li>Non-instantiable static utility pattern</li>
- *   <li>Detailed JavaDoc and inline comments</li>
- *   <li>Strong config-driven design</li>
- *   <li>Clear Excel column mapping</li>
- *   <li>Defensive coding with logging</li>
+ *   <li>Appends a row at the next available position (never overwrites).</li>
+ *   <li>Generates the next Run ID in its series (System: {@code R#}, E2E: {@code E2E#}).</li>
+ *   <li>Writes Exec Date/Time/Status; writes Failure Reason on failure.</li>
+ *   <li>For System tests only, triggers an E2E Binding sync after writing.</li>
  * </ul>
+ *
+ * <p><b>Behavioral notes (unchanged):</b>
+ * <br/>• System tests write to {@code Transactional_Data} starting from row index 2.<br/>
+ * • E2E tests write to {@code E2E Binding} starting from row index 1.<br/>
+ * • Run IDs are strictly monotonic within each sheet/series.</p>
  */
 public final class ExecutionDataUtil {
 
-    private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
-    private static final String SHEET_NAME = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
+    // ---- Configuration constants ------------------------------------------------
 
-    /** Utility class; prevent instantiation. */
-    private ExecutionDataUtil() { }
+    private static final String FILE_PATH  = ConfigReader.getProperty("Test_Data_File_Path");
+    private static final String TXN_SHEET  = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
+    private static final String E2E_SHEET  = ConfigReader.getProperty("End_To_End_Sheet_Name");
+
+    private static final int START_ROW_SYSTEM = 2; // Transactional data after header
+    private static final int START_ROW_E2E    = 1; // E2E Binding data after header
+
+    private static final String DATE_FMT = "MM/dd/yyyy";
+    private static final String TIME_FMT = "HH:mm:ss";
+
+    private ExecutionDataUtil() { /* utility class */ }
+
+    // ---- Public API -------------------------------------------------------------
 
     /**
-     * Writes execution data for the current test result into the Excel results sheet.
-     * Handles both system and E2E test packages, recording run metadata and any failure reason.
+     * Appends execution results for the current test into the appropriate sheet.
      *
-     * @param rowIndex Excel row index where data should be written
-     * @param result   TestNG test result
+     * @param rowIndex suggested row index (ignored; we always append to the next free row)
+     * @param result   TestNG result providing status and throwable
      */
     public static void writeExecutionData(int rowIndex, ITestResult result) {
-        String execDate = getCurrentDate("MM/dd/yyyy");
-        String execTime = getCurrentDate("HH:mm:ss");
-        String status = getStatus(result);
+        final String execDate = nowAs(DATE_FMT);
+        final String execTime = nowAs(TIME_FMT);
+        final String status   = statusLabel(result);
+
+        final boolean isSystem = TestTypeUtil.isSystem(result);
+        final boolean isE2E    = TestTypeUtil.isE2E(result);
 
         try (FileInputStream fis = new FileInputStream(FILE_PATH);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
-            String sheetToUse;
+            // Resolve target sheet
+            final String sheetName = isSystem
+                    ? TXN_SHEET
+                    : (isE2E ? E2E_SHEET : null);
 
-            if (TestTypeUtil.isSystemTestClass(result.getTestClass().getRealClass().getName())) {
-                sheetToUse = SHEET_NAME;
-            } else if (TestTypeUtil.isFromE2ETestPackage()) {
-                sheetToUse = ConfigReader.getProperty("End_To_End_Sheet_Name");
-            } else {
-                LogUtil.log(ExecutionDataUtil.class, "Skipping execution data write: Test is not from a supported package.");
+            if (sheetName == null) {
+                LogUtil.log(ExecutionDataUtil.class, "Skipping execution data write: unsupported package.");
                 return;
             }
 
-            Sheet sheet = workbook.getSheet(sheetToUse);
+            final Sheet sheet = workbook.getSheet(sheetName);
             if (sheet == null) {
-                LogUtil.warn(ExecutionDataUtil.class, "Sheet not found: " + sheetToUse + ". Skipping execution data write.");
+                LogUtil.warn(ExecutionDataUtil.class, "Sheet not found: " + sheetName + ". Skipping.");
                 return;
             }
 
-            Row row = sheet.getRow(rowIndex);
-            if (row == null) {
-                row = sheet.createRow(rowIndex);
-            }
+            // Series configuration
+            final int startRow   = isE2E ? START_ROW_E2E : START_ROW_SYSTEM;
+            final int runIdCol   = isE2E ? E2EBindingColumnIndex.RUN_ID : ExcelColumnIndex.RUN_ID;
+            final String prefix  = isE2E ? "E2E" : "R";
 
-            // Get next run ID (simple increment by max found)
-            int maxRunId = ExcelUtil.getMaxRunId(sheet, E2EBindingColumnIndex.RUN_ID, 2);
-            String runId = "R" + (maxRunId + 1);
+            // Always append at the next available row (ignores the incoming rowIndex)
+            final int appendRowIndex = ExcelUtil.findNextAvailableRow(sheet, runIdCol, startRow);
+            Row row = sheet.getRow(appendRowIndex);
+            if (row == null) row = sheet.createRow(appendRowIndex);
 
-            CellStyle style = createBorderStyle(workbook);
+            // Generate the next RunID in this sheet/series
+            final int maxRunId = ExcelUtil.getMaxRunIdWithPrefix(sheet, runIdCol, startRow, prefix);
+            final String runId = prefix + (maxRunId + 1);
 
-            // Write execution details (column index depends on test type)
-            if (ConfigReader.getProperty("End_To_End_Sheet_Name").equals(sheetToUse)) {
-                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.RUN_ID, runId, style);
-                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_DATE, execDate, style);
-                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_TIME, execTime, style);
-                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_STATUS, status, style);
+            final CellStyle bordered = createBorderStyle(workbook);
+
+            if (isE2E) {
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.RUN_ID,      runId,    bordered);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_DATE,   execDate, bordered);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_TIME,   execTime, bordered);
+                ExcelUtil.setCellValue(row, E2EBindingColumnIndex.EXEC_STATUS, status,   bordered);
+
+                // Failure reason column for E2E
+                if ("Fail".equalsIgnoreCase(status)) {
+                    final String reason = firstLineOf(result);
+                    final CellStyle wrap = createBorderStyle(workbook);
+                    wrap.setWrapText(true);
+                    sheet.setColumnWidth(E2EBindingColumnIndex.FAILURE_REASON, 50 * 256);
+                    ExcelUtil.setCellValue(row, E2EBindingColumnIndex.FAILURE_REASON, reason, wrap);
+                }
             } else {
-                ExcelUtil.setCellValue(row, ExcelColumnIndex.RUN_ID, runId, style);
-                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_DATE, execDate, style);
-                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_TIME, execTime, style);
-                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_STATUS, status, style);
+                // Transactional/System path (unchanged)
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.RUN_ID,      runId,    bordered);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_DATE,   execDate, bordered);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_TIME,   execTime, bordered);
+                ExcelUtil.setCellValue(row, ExcelColumnIndex.EXEC_STATUS, status,   bordered);
+
+                if ("Fail".equalsIgnoreCase(status)) {
+                    writeFailureReason(sheet, row, result, workbook, ExcelColumnIndex.FAILURE_REASON);
+                }
             }
 
-            // If failed, log first-line failure reason (for system tests only)
-            if ("Fail".equalsIgnoreCase(status)
-                    && ConfigReader.getProperty("Transactional_Data_Sheet_Name").equals(sheetToUse)) {
-                writeFailureReason(sheet, row, result, workbook);
-            }
-
-            // Save to disk (flush)
             try (FileOutputStream fos = new FileOutputStream(FILE_PATH)) {
                 workbook.write(fos);
             }
@@ -112,36 +135,29 @@ public final class ExecutionDataUtil {
         } catch (IOException e) {
             LogUtil.error(ExecutionDataUtil.class, "Failed to write execution data to Excel.", e);
         }
+
+        // Keep System → E2E sync (no-op for E2E tests)
+        try {
+            if (isSystem) {
+                E2EBindingSyncUtil.appendLatestTransactionalOrderToE2EBinding();
+            }
+        } catch (Exception syncEx) {
+            LogUtil.warn(ExecutionDataUtil.class, "E2E Binding sync skipped: " + syncEx.getMessage());
+        }
     }
 
-    /**
-     * Writes the failure reason (first line of exception) into Excel if a test fails.
-     *
-     * @param sheet   The Excel sheet
-     * @param row     The row to update
-     * @param result  TestNG test result
-     * @param workbook The current workbook instance
-     */
-    private static void writeFailureReason(Sheet sheet, Row row, ITestResult result, Workbook workbook) {
-        Throwable throwable = result.getThrowable();
-        String message = throwable != null && throwable.getMessage() != null
-                ? throwable.getMessage().split("\\r?\\n")[0]
-                : "No exception message";
+    // ---- Private helpers --------------------------------------------------------
 
-        String truncatedMessage = message.length() > 100 ? message.substring(0, 100) + "..." : message;
-
-        CellStyle wrapStyle = createBorderStyle(workbook);
-        wrapStyle.setWrapText(true);
-
-        sheet.setColumnWidth(ExcelColumnIndex.FAILURE_REASON, 50 * 256); // Make failure reason column wider
-
-        ExcelUtil.setCellValue(row, ExcelColumnIndex.FAILURE_REASON, truncatedMessage, wrapStyle);
+    /** Returns the first line of the throwable message (truncated at 100 chars). */
+    private static String firstLineOf(ITestResult result) {
+        final Throwable t = result.getThrowable();
+        final String msg = (t != null && t.getMessage() != null) ? t.getMessage() : "No exception message";
+        final String first = msg.split("\\r?\\n")[0];
+        return (first.length() > 100) ? first.substring(0, 100) + "..." : first;
     }
 
-    /**
-     * Maps TestNG test result status to human-readable status.
-     */
-    private static String getStatus(ITestResult result) {
+    /** Maps TestNG status to a label used in Excel. */
+    private static String statusLabel(ITestResult result) {
         return switch (result.getStatus()) {
             case ITestResult.SUCCESS -> "Pass";
             case ITestResult.FAILURE -> "Fail";
@@ -150,18 +166,34 @@ public final class ExecutionDataUtil {
         };
     }
 
-    /**
-     * Returns the current date/time in the specified format.
-     */
-    private static String getCurrentDate(String pattern) {
+    /** Formats current time with the given pattern. */
+    private static String nowAs(String pattern) {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern));
     }
 
-    /**
-     * Creates a standard bordered cell style for Excel.
-     */
+    /** Writes a (truncated) failure reason into the provided column with wrapping and width. */
+    private static void writeFailureReason(Sheet sheet,
+                                           Row row,
+                                           ITestResult result,
+                                           Workbook workbook,
+                                           int failureColIndex) {
+        final Throwable t = result.getThrowable();
+        final String message = (t != null && t.getMessage() != null)
+                ? t.getMessage().split("\\r?\\n")[0]
+                : "No exception message";
+
+        final String truncated = message.length() > 100 ? message.substring(0, 100) + "..." : message;
+
+        final CellStyle wrapStyle = createBorderStyle(workbook);
+        wrapStyle.setWrapText(true);
+
+        sheet.setColumnWidth(failureColIndex, 50 * 256);
+        ExcelUtil.setCellValue(row, failureColIndex, truncated, wrapStyle);
+    }
+
+    /** Thin-borders cell style used across writers. */
     private static CellStyle createBorderStyle(Workbook workbook) {
-        CellStyle style = workbook.createCellStyle();
+        final CellStyle style = workbook.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderBottom(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);

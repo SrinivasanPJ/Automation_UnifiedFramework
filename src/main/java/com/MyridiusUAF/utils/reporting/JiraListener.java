@@ -1,128 +1,323 @@
 package com.MyridiusUAF.utils.reporting;
 
-import com.MyridiusUAF.utils.core.ScreenshotUtil;
+import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.utils.annotations.Jira;
+import com.MyridiusUAF.utils.core.FileAwait;
+import com.MyridiusUAF.utils.core.ScreenshotUtil;
+import com.MyridiusUAF.utils.data.ExecutionDataUtil;
+import com.MyridiusUAF.utils.excel.E2EBindingColumnIndex;
+import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
+import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
+import com.MyridiusUAF.utils.excel.ExcelUtil;
+import com.MyridiusUAF.utils.test.TestTypeUtil;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
-import org.openqa.selenium.WebDriver;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 
 /**
- * TestNG Listener for integrating JIRA traceability and reporting with automated test outcomes.
- * <p>
- * For each test, this class can:
+ * TestNG listener that:
  * <ul>
- *     <li>Comment on or create a JIRA issue upon failure, attaching screenshots and details</li>
- *     <li>Annotate pass/skip in JIRA as comments</li>
- *     <li>Embed clickable JIRA links with live status into ExtentReports</li>
+ *   <li>Ensures an execution row is written exactly once per test.</li>
+ *   <li>Resolves/creates the corresponding JIRA issue (via annotation/store/search).</li>
+ *   <li>Uploads Extent report & screenshots, and posts an ADF comment.</li>
  * </ul>
- * This is designed for enterprise-grade traceability and audit support.
  */
 public class JiraListener implements ITestListener {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JiraListener.class);
+
+    private static final String CONTEXT_EXEC_WRITTEN = "ExecDataWritten";
     private static final String JIRA_BASE_URL = "https://myridius-team-uaf.atlassian.net/browse/";
-    // Use standard colors for status tags in the report
+
     private static final String COLOR_FAIL = "#1976D2";
     private static final String COLOR_PASS = "#43A047";
     private static final String COLOR_SKIP = "#FBC02D";
 
-    /**
-     * Called when a test method fails.
-     * Attempts to comment on an existing JIRA ticket (if annotated), or creates a new JIRA issue.
-     */
+    private static final Duration REPORT_AWAIT = Duration.ofSeconds(5);
+
+    private static final boolean POST_DEBUG_LINKS_COMMENT =
+            Boolean.parseBoolean(String.valueOf(ConfigReader.getProperty("jira.debug.links.comment")));
+
+    // ------------------------------------------------------------
+    // TestNG callbacks
+    // ------------------------------------------------------------
+
     @Override
-    public void onTestFailure(ITestResult result) {
-        String testName = result.getMethod().getMethodName();
-        String errorMessage = result.getThrowable() != null ? result.getThrowable().toString() : "Test failed.";
+    public void onTestFailure(final ITestResult result) {
+        LOG.info("JIRA: onTestFailure for {}", result.getMethod().getQualifiedName());
+        ensureExecRowWrittenOnce(result);
 
-        String summary = "[Automation Failure] " + testName;
-        String description = "Test Method: " + testName + "\nError: " + errorMessage;
+        final String jiraId = getOrCreateJiraId(result);
+        logResolvedKey(jiraId);
+        if (isBlank(jiraId)) return;
 
-        // *** Use screenshot captured and stored in BaseTest ***
-        String screenshotPath = (String) result.getTestContext().getAttribute("LastScreenshotPath");
+        final String reportUrl = ensureReportAttachedReturnUrl(jiraId);
+        final String screenshotMediaId = captureAndAttachFailureScreenshotReturnMediaId(result, jiraId);
 
-        // Use annotation for traceability, else create a new ticket
-        String jiraId = getJiraId(result);
-        if (jiraId != null && !jiraId.isEmpty()) {
-            JiraUtil.addADFComment(jiraId, result);
+        JiraUtil.addADFComment(jiraId, result, reportUrl, screenshotMediaId);
+        result.getTestContext().setAttribute("JIRA_ADF_POSTED", true);
+        LOG.info("JIRA: ADF comment posted for FAIL {}", jiraId);
 
-            // Always attach screenshot if present and file exists
-            if (screenshotPath != null && new java.io.File(screenshotPath).exists()) {
-                JiraUtil.attachScreenshot(jiraId, screenshotPath);
+        addJiraLinkToReport(jiraId, JiraUtil.getIssueStatus(jiraId), COLOR_FAIL, "ADF Comment Added");
+    }
+
+    @Override
+    public void onTestSuccess(final ITestResult result) {
+        LOG.info("JIRA: onTestSuccess for {}", result.getMethod().getQualifiedName());
+        ensureExecRowWrittenOnce(result);
+
+        final String jiraId = getOrCreateJiraId(result);
+        logResolvedKey(jiraId);
+        if (isBlank(jiraId)) return;
+
+        final String reportUrl = ensureReportAttachedReturnUrl(jiraId);
+
+        JiraUtil.addADFComment(jiraId, result, reportUrl, null);
+        result.getTestContext().setAttribute("JIRA_ADF_POSTED", true);
+        LOG.info("JIRA: ADF comment posted for PASS {}", jiraId);
+
+        addJiraLinkToReport(jiraId, JiraUtil.getIssueStatus(jiraId), COLOR_PASS, "ADF Comment Added");
+    }
+
+    @Override
+    public void onTestSkipped(final ITestResult result) {
+        LOG.info("JIRA: onTestSkipped for {}", result.getMethod().getQualifiedName());
+        ensureExecRowWrittenOnce(result);
+
+        final String jiraId = getOrCreateJiraId(result);
+        logResolvedKey(jiraId);
+        if (isBlank(jiraId)) return;
+
+        final String reportUrl = ensureReportAttachedReturnUrl(jiraId);
+
+        JiraUtil.addADFComment(jiraId, result, reportUrl, null);
+        result.getTestContext().setAttribute("JIRA_ADF_POSTED", true);
+        LOG.info("JIRA: ADF comment posted for SKIP {}", jiraId);
+
+        addJiraLinkToReport(jiraId, JiraUtil.getIssueStatus(jiraId), COLOR_SKIP, "ADF Comment Added");
+    }
+
+    // ------------------------------------------------------------
+    // Core operations
+    // ------------------------------------------------------------
+
+    /** Writes the execution row once per test (guarded by a context attribute). */
+    private void ensureExecRowWrittenOnce(final ITestResult result) {
+        Object done = result.getTestContext().getAttribute(CONTEXT_EXEC_WRITTEN);
+        if (Boolean.TRUE.equals(done)) return;
+
+        try {
+            final boolean isSystem = TestTypeUtil.isSystem(result);
+            final boolean isE2E    = TestTypeUtil.isE2E(result);
+            if (!isSystem && !isE2E) {
+                LOG.warn("Unknown test type; exec write skipped.");
+                return;
             }
-            addJiraLinkToReport(jiraId, JiraUtil.getIssueStatus(jiraId), COLOR_FAIL, "ADF Comment Added");
 
+            final String filePath  = ConfigReader.getProperty("Test_Data_File_Path");
+            final String sheetName = isSystem
+                    ? ConfigReader.getProperty("Transactional_Data_Sheet_Name")
+                    : ConfigReader.getProperty("End_To_End_Sheet_Name");
+
+            final int startRow = isSystem ? 2 : 1;
+            final int runCol   = isSystem ? ExcelColumnIndex.RUN_ID : E2EBindingColumnIndex.RUN_ID;
+
+            Sheet sheet = ExcelReaderUtil.getSheet(filePath, sheetName);
+            int rowIdx = ExcelUtil.findNextAvailableRow(sheet, runCol, startRow);
+
+            ExecutionDataUtil.writeExecutionData(rowIdx, result);
+            result.getTestContext().setAttribute(CONTEXT_EXEC_WRITTEN, true);
+            LOG.info("Exec row written by listener (sheet={}, row={})", sheetName, rowIdx);
+        } catch (Throwable t) {
+            LOG.warn("Exec row write by listener failed (non-fatal).", t);
+        }
+    }
+
+    /**
+     * Resolves the JIRA issue key for the test:
+     * <ol>
+     *   <li>Explicit {@code @Jira} annotation</li>
+     *   <li>Local {@link JiraKeyStore}</li>
+     *   <li>Search by summary or create</li>
+     * </ol>
+     * Also keeps summary/description in sync.
+     */
+    private String getOrCreateJiraId(final ITestResult result) {
+        final String fqn = result.getTestClass().getName() + "#" + result.getMethod().getMethodName();
+        LOG.info("JIRA: resolve key for {}", fqn);
+
+        // surface missing config early
+        final String url  = ConfigReader.getProperty("jira.url");
+        final String email= ConfigReader.getProperty("jira.email");
+        final String proj = ConfigReader.getProperty("jira.project.key");
+        if (isBlank(url) || isBlank(email) || isBlank(proj)) {
+            LOG.warn("JIRA: config looks incomplete (url='{}', email='{}', project='{}')",
+                    valueOrMissing(url), valueOrMissing(email), valueOrMissing(proj));
+        }
+
+        final String testDescRaw = result.getMethod().getDescription();
+        final String fallBackTitle = "Automation: " + result.getTestClass().getName() + "." + result.getMethod().getMethodName();
+        final String desiredSummary = JiraUtil.trimTo255(isBlank(testDescRaw) ? fallBackTitle : testDescRaw);
+        final String desiredDescription = isBlank(testDescRaw)
+                ? ("Auto-created for test '" + result.getMethod().getMethodName()
+                + "'. Framework will append execution comments and artifacts.")
+                : testDescRaw;
+
+        // 1) annotation
+        final Jira jiraAnn = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Jira.class);
+        if (jiraAnn != null && !isBlank(jiraAnn.value())) {
+            final String key = jiraAnn.value();
+            LOG.info("JIRA: @Jira annotation -> {}", key);
+            JiraUtil.updateIssueSummaryAndDescription(key, desiredSummary, desiredDescription);
+            return key;
+        }
+
+        // 2) keystore
+        final String stored = JiraKeyStore.get(fqn);
+        if (!isBlank(stored)) {
+            LOG.info("JIRA: keystore HIT -> {}", stored);
+            JiraUtil.updateIssueSummaryAndDescription(stored, desiredSummary, desiredDescription);
+            return stored;
+        }
+        LOG.info("JIRA: keystore MISS");
+
+        // 3) search or create
+        LOG.info("JIRA: findOrCreate '{}'", desiredSummary);
+        final String key = JiraUtil.findOrCreateIssue(desiredSummary, desiredDescription);
+
+        if (!isBlank(key)) {
+            JiraKeyStore.put(fqn, key);
+            LOG.info("JIRA: using issue {} for {}", key, fqn);
+            JiraUtil.updateIssueSummaryAndDescription(key, desiredSummary, desiredDescription);
         } else {
-            // No annotation: create new ticket for this failure
-            String issueKey = JiraUtil.createIssue(summary, description);
-            if (issueKey != null && !issueKey.isEmpty() && screenshotPath != null && new java.io.File(screenshotPath).exists()) {
-                JiraUtil.attachScreenshot(issueKey, screenshotPath);
+            LOG.warn("JIRA: could not resolve/create issue for {}", fqn);
+        }
+        return key;
+    }
+
+    /** Flushes and attaches the report, returning its content URL (or {@code null}). */
+    private String ensureReportAttachedReturnUrl(final String jiraId) {
+        ExtentReportManager.INSTANCE.flushReport();
+
+        final String reportPath = ExtentReportManager.INSTANCE.getReportPath();
+        final Path report = Paths.get(reportPath);
+
+        FileAwait.waitForExistence(report, REPORT_AWAIT);
+        final File reportFile = report.toFile();
+
+        LOG.info("JIRA: reportPath = {} (exists={})", reportPath, reportFile.exists());
+        final JiraUtil.JiraAttachment att = reportFile.exists() ? attachWithRetry(jiraId, reportPath) : null;
+        final String url = att != null ? att.contentUrl() : null;
+
+        LOG.info("JIRA: report attach {}", att == null ? "FAILED" : "OK -> " + url);
+        return url;
+    }
+
+    /** Captures & uploads screenshot; returns {@code mediaId} for inline ADF images or {@code null}. */
+    private String captureAndAttachFailureScreenshotReturnMediaId(final ITestResult result, final String jiraId) {
+        try {
+            final Object drvObj = result.getTestContext().getAttribute("WebDriver");
+            if (!(drvObj instanceof WebDriver driver)) {
+                LOG.warn("JIRA: WebDriver not found in context; skipping screenshot capture");
+                return null;
             }
-            addJiraLinkToReport(issueKey, JiraUtil.getIssueStatus(issueKey), COLOR_FAIL, "Created");
-        }
-    }
 
-    /**
-     * Called when a test method passes.
-     * Optionally comments on the mapped JIRA ticket and annotates status in report.
-     */
-    @Override
-    public void onTestSuccess(ITestResult result) {
-        String jiraId = getJiraId(result);
-        if (jiraId != null && !jiraId.isEmpty()) {
-            JiraUtil.addADFComment(jiraId, result);
-            addJiraLinkToReport(jiraId, JiraUtil.getIssueStatus(jiraId), COLOR_PASS, "ADF Comment Added");
-        }
-    }
+            String shotPath = ScreenshotUtil.saveScreenshotAsPNG(driver, result.getName());
+            File shotFile = new File(shotPath);
+            if (!shotFile.exists()) shotFile = new File("reports", shotPath);
 
-    /**
-     * Called when a test is skipped.
-     * Optionally comments on the mapped JIRA ticket and annotates status in report.
-     */
-    @Override
-    public void onTestSkipped(ITestResult result) {
-        String jiraId = getJiraId(result);
-        if (jiraId != null && !jiraId.isEmpty()) {
-            JiraUtil.addADFComment(jiraId, result);
-            addJiraLinkToReport(jiraId, JiraUtil.getIssueStatus(jiraId), COLOR_SKIP, "ADF Comment Added");
-        }
-    }
+            if (!shotFile.exists()) {
+                LOG.warn("JIRA: screenshot file missing -> {}", shotFile.getAbsolutePath());
+                return null;
+            }
 
-    /**
-     * Attempts to capture a screenshot using the WebDriver stored in the test context.
-     * @param result The ITestResult object
-     * @param screenshotName The desired screenshot filename
-     * @return The relative path to the screenshot (or null if none captured)
-     */
-    private String captureScreenshot(ITestResult result, String screenshotName) {
-        Object driverAttr = result.getTestContext().getAttribute("WebDriver");
-        if (driverAttr instanceof WebDriver driver) {
-            return ScreenshotUtil.saveScreenshotAsPNG(driver, screenshotName);
+            final JiraUtil.JiraAttachment shotAtt = attachWithRetry(jiraId, shotFile.getAbsolutePath());
+            if (shotAtt != null) {
+                LOG.info("JIRA: screenshot attach OK (mediaId={})", shotAtt.mediaId());
+                return shotAtt.mediaId();
+            }
+            LOG.warn("JIRA: screenshot attach FAILED");
+        } catch (Exception e) {
+            LOG.warn("JIRA: screenshot capture/attach failed", e);
         }
         return null;
     }
 
-    /**
-     * Helper to embed a clickable JIRA link and live status tag in the report.
-     */
-    private void addJiraLinkToReport(String jiraId, String status, String color, String action) {
-        if (jiraId == null || jiraId.isEmpty()) return;
-        String jiraUrl = JIRA_BASE_URL + jiraId;
-        String statusTag = "<span style='color: " + color + "; font-weight:bold;'>[" + status + "]</span>";
-        ExtentReportManager.INSTANCE.getTest().info(
-                "JIRA Ticket: <a href='" + jiraUrl + "' target='_blank'>" + jiraId + "</a> " +
-                        statusTag + " (" + action + ")"
-        );
+    // ------------------------------------------------------------
+    // Minor helpers
+    // ------------------------------------------------------------
+
+    private void addJiraLinkToReport(final String jiraId, final String status, final String color, final String action) {
+        if (isBlank(jiraId)) return;
+        final String jiraUrl = JIRA_BASE_URL + jiraId;
+        final String statusTag = "<span style='color: " + color + "; font-weight:bold;'>[" + status + "]</span>";
+        if (ExtentReportManager.INSTANCE.getTest() != null) {
+            ExtentReportManager.INSTANCE.getTest().info(
+                    "JIRA Ticket: <a href='" + jiraUrl + "' target='_blank'>" + jiraId + "</a> " + statusTag + " (" + action + ")"
+            );
+        } else {
+            LOG.info("Report not initialized; JIRA Ticket: {} ({}) {}", jiraUrl, status, action);
+        }
     }
 
-    /**
-     * Extracts the JIRA ID from the @Jira annotation (if present) on the test method.
-     * @param result The ITestResult object
-     * @return JIRA issue key or null if annotation not found
-     */
-    private String getJiraId(ITestResult result) {
-        Jira jira = result.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Jira.class);
-        return jira != null ? jira.value() : null;
+    private void logResolvedKey(String jiraId) {
+        LOG.info("JIRA: resolved key = {}", isBlank(jiraId) ? "<none>" : jiraId);
+    }
+
+    private static boolean fileExists(final String path) {
+        return path != null && !path.isEmpty() && new File(path).exists();
+    }
+
+    private static boolean isBlank(String s) { return s == null || s.isBlank(); }
+
+    private static String valueOrMissing(String v) { return isBlank(v) ? "MISSING" : v; }
+
+    /** Small retry for Jira attachments (handles minor post-create lag). */
+    private JiraUtil.JiraAttachment attachWithRetry(final String issueKey, final String path) {
+        if (isBlank(path)) {
+            LOG.info("JIRA: attach skipped (path blank)");
+            return null;
+        }
+        if (!fileExists(path)) {
+            LOG.info("JIRA: attach skipped (file missing): {}", path);
+            return null;
+        }
+
+        final File f = new File(path);
+        final long size = f.length();
+        final long[] waits = {0L, 800L, 1500L};
+
+        for (int i = 0; i < waits.length; i++) {
+            if (i > 0) {
+                try { Thread.sleep(waits[i]); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            }
+            LOG.info("JIRA: attach attempt {} -> {} ({} bytes)", (i + 1), path, size);
+            final JiraUtil.JiraAttachment att = JiraUtil.attachFile(issueKey, path);
+            if (att != null) {
+                LOG.info("JIRA: attach OK on attempt {} (filename={}, mediaId={})", (i + 1), att.filename(), att.mediaId());
+                return att;
+            }
+            LOG.warn("JIRA: attach attempt {} failed", (i + 1));
+        }
+        LOG.warn("JIRA: attach FAILED after retries -> {}", path);
+        return null;
+    }
+
+    // Kept for potential debug comments; not used by default flow.
+    @SuppressWarnings("unused")
+    private void addLinksToReportAsComment(final String jiraId, final String reportUrl, final String screenshotUrl) {
+        if (isBlank(jiraId)) return;
+        final StringBuilder comment = new StringBuilder("🔗 *Automation Debug Info* 🔗\n");
+        if (!isBlank(reportUrl))     comment.append("- [Extent Report](").append(reportUrl).append(") ✅\n");
+        if (!isBlank(screenshotUrl)) comment.append("- [Screenshot](").append(screenshotUrl).append(") 📸\n");
+        if (comment.indexOf("](") > 0) JiraUtil.addComment(jiraId, comment.toString());
     }
 }
