@@ -3,6 +3,8 @@ package com.MyridiusUAF.pages;
 import com.MyridiusUAF.base.BasePage;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Page object for handling login functionality.
@@ -11,20 +13,23 @@ import org.openqa.selenium.support.FindBy;
  */
 public class LoginPage extends BasePage {
 
-    @FindBy(xpath = "//a[@class='ico-login']")
-    private WebElement loginLink;
+    //@FindBy(css = "//a[@class='ico-login']")
+    //private WebElement loginLink;
 
-    @FindBy(xpath = "//input[@class='email']")
+    @FindBy(name = "j_username")
     private WebElement email;
 
-    @FindBy(xpath = "//input[@class='password']")
+    @FindBy(name = "j_password")
     private WebElement password;
 
-    @FindBy(xpath = "//input[@value='Log in']")
+    @FindBy(xpath = "/html/body/div[1]/div[1]/form/input[3]")
     private WebElement loginButton;
 
-    @FindBy(xpath = "//a[@class='ico-logout']")
-    private WebElement logoutLink;
+    @FindBy(xpath = "//div[@class='wdg-section-1-header']")
+    private WebElement homeCataloguePage;
+
+    //@FindBy (xpath = "//*[@id='page1']/div/div/div/div[2]/div[2]/div/div[5]/div/div[1]/div/div[3]/div/fieldset/div[1]/div[1]/div/div/div/div[1]/div[1]/a/img")
+    //private WebElement checkingSavings;
 
     /**
      * Performs the login action using provided user credentials.
@@ -33,8 +38,8 @@ public class LoginPage extends BasePage {
      * @param pass password
      */
     public void login(String user, String pass) {
-        click(loginLink, "Clicked Main Login button");
-        //log("Attempting login with email: " + user);
+       // click(loginLink, "Clicked Main Login button");
+       // log("Attempting login with email: " + user);
 
         sendKeys(email, user);
         log("Entered Email: " + user);
@@ -48,7 +53,9 @@ public class LoginPage extends BasePage {
             throw new AssertionError("Login was not successful for user: " + user);
         }
         log("Login successful for user: " + user);
+
     }
+
 
     /**
      * Checks if the login was successful by verifying the presence of the logout link.
@@ -57,19 +64,11 @@ public class LoginPage extends BasePage {
      */
     public boolean isLoginSuccessful() {
         try {
-            return logoutLink.isDisplayed();
+            return homeCataloguePage.isDisplayed();
         } catch (Exception e) {
             return false;
         }
     }
 
-    public boolean clickLogoutLink() {
-        waitUntilClickable(logoutLink, 20);
-        click(logoutLink, "Clicked Logout Link");
-        try {
-            return loginLink.isDisplayed();
-        } catch (Exception e) {
-            return false;
-        }
-    }
+
 }

@@ -2,6 +2,7 @@ package com.MyridiusUAF.SystemTest;
 
 import com.MyridiusUAF.utils.annotations.Jira;
 import com.MyridiusUAF.base.BaseTest;
+import com.MyridiusUAF.utils.annotations.TestType;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
@@ -12,7 +13,8 @@ import org.testng.annotations.Test;
  * - Reads input from Synthetic Data sheet (InputID: Ip1, TestID: 1)
  * - Fails test if login is unsuccessful
  */
- // Re-usable System test
+// System test
+@TestType(TestType.Kind.SYSTEM)
 public class LoginTest extends BaseTest {
 
     /**
