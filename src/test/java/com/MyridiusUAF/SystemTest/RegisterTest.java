@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
  *   <li>Validates registration success and logs out</li>
  * </ul>
  */
-// End to End test
 @TestType(TestType.Kind.SYSTEM)
 public class RegisterTest extends BaseTest {
 
@@ -36,7 +35,7 @@ public class RegisterTest extends BaseTest {
         // 2. Open registration page
         registerPage.clickRegisterLink();
         registerPage.waitForRegisterPage();
-        registerPage.selectGender("Male89");
+        registerPage.selectGender("Male");
 
         // 3. Generate and enter user data
         String firstName = RandomDataGenerator.getRandomFirstName();

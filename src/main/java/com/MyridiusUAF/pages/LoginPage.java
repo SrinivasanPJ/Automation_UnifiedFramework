@@ -17,7 +17,7 @@ import org.openqa.selenium.support.FindBy;
 public class LoginPage extends BasePage {
 
     // ---- Timeouts (seconds) -------------------------------------------------
-    private static final int WAIT_SHORT  = 10;
+    private static final int WAIT_SHORT = 10;
     private static final int WAIT_MEDIUM = 20;
 
     // ---- Locators (PageFactory) --------------------------------------------

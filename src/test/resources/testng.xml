@@ -14,8 +14,9 @@
         </classes>
     </test>
 
-    <listeners>
-        <listener class-name="com.MyridiusUAF.utils.reporting.JiraListener"/>
-    </listeners>
-
+    <!--    <listeners>-->
+    <!--        <listener class-name="com.MyridiusUAF.listeners.AiTriageListener"/>-->
+    <!--        <listener class-name="com.MyridiusUAF.utils.reporting.JiraListener"/>-->
+    <!--        <listener class-name="com.MyridiusUAF.utils.reporting.RecordingRunListener"/>-->
+    <!--    </listeners>-->
 </suite>

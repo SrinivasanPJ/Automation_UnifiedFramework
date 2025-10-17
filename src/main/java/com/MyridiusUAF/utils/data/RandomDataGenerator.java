@@ -31,7 +31,8 @@ public final class RandomDataGenerator {
     private static final Random RANDOM = new Random();
 
     // Prevent instantiation
-    private RandomDataGenerator() {}
+    private RandomDataGenerator() {
+    }
 
     /**
      * Returns a random Indian first name.
@@ -68,6 +69,7 @@ public final class RandomDataGenerator {
 
     /**
      * Generates a random strong password containing uppercase, lowercase, digits, and symbols.
+     *
      * @param length desired password length
      * @return generated password string
      */

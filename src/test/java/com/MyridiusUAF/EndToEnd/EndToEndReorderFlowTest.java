@@ -5,14 +5,18 @@ import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.flows.ReorderFlow;
 import com.MyridiusUAF.utils.annotations.TestType;
 import com.MyridiusUAF.utils.data.ExecutionDataUtil;
+import com.MyridiusUAF.utils.db.DataMode;
 import com.MyridiusUAF.utils.excel.E2EBindingColumnIndex;
-import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
 import com.MyridiusUAF.utils.excel.ExcelUtil;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+
+import java.io.FileInputStream;
 
 /**
  * End-to-end test that authenticates a user and executes a Reorder flow
@@ -34,7 +38,7 @@ public class EndToEndReorderFlowTest extends BaseTest {
     private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
     private static final String E2E_SHEET = ConfigReader.getProperty("End_To_End_Sheet_Name");
     private static final String TEST_ID = "1";
-    private static final String INPUT_ID = "Ip7";
+    private static final String INPUT_ID = "Ip1";
 
     /**
      * End-to-End: Login and execute Reorder via {@link ReorderFlow}; then persist
@@ -53,48 +57,42 @@ public class EndToEndReorderFlowTest extends BaseTest {
      */
     @Test(description = "End-to-End: Authenticate and execute Reorder via ReorderFlow; persist order evidence to Excel")
     public void executeAuthenticatedReorderFlow(final ITestContext context) throws InterruptedException {
-        // 1) Initialize test context & allocate a unique Excel row
+        // Initialize test context & allocate a unique Excel row
         initializeTestContext(TEST_ID, INPUT_ID, context);
-        final Sheet sheet = ExcelReaderUtil.getSheet(FILE_PATH, E2E_SHEET);
-        final int rowIndex = ExcelUtil.findNextAvailableRow(sheet, E2EBindingColumnIndex.RUN_ID, 2);
-        context.setAttribute("ExcelRowIndex", rowIndex);
+        allocateE2EExcelRowIfNeeded(context);
 
-        // 2) Authentication (required precondition for Reorder)
+        // --- Test steps (same for both modes) ---
         logStep("Authenticating test user");
         performLogin(TEST_ID);
 
-        // 3) Business action: Reorder using the consolidated flow (no duplication)
         logStep("Executing ReorderFlow");
         new ReorderFlow(addProductsToCartAndPlaceOrderPage, orderInformationPage).perform();
 
-        // 4) Persist evidence for auditability
-        logStep("Persisting order details to Excel");
+        // Persist order details:
+        // - In DB mode, OrderInformationPage/OrderDataUtil will write to DB and skip Excel.
+        // - In Excel mode, it will append to the allocated row.
+        logStep("Persisting order details");
         orderInformationPage.writeDataToFile(context);
 
         logStep("Completed E2E Reorder scenario");
     }
 
-    /**
-     * Records final execution metadata to Excel after each test run.
-     * Always executes and never overwrites previously recorded rows.
-     *
-     * @param result TestNG result for the executed test method
-     */
-    @AfterMethod(alwaysRun = true)
-    public void recordExecutionData(final ITestResult result) {
-        final Object idx = result.getTestContext().getAttribute("ExcelRowIndex");
-        final int rowIndex = (idx instanceof Integer) ? (Integer) idx : -1;
-        if (rowIndex != -1) {
-            ExecutionDataUtil.writeExecutionData(rowIndex, result);
-        }
-    }
+//    @AfterMethod(alwaysRun = true)
+//    public void recordExecutionData(final ITestResult result) {
+//        if (DataMode.isDb()) {
+//            // Let the DB writer handle it (row index not needed)
+//            ExecutionDataUtil.writeExecutionData(-1, result);
+//            return;
+//        }
+//
+//        // Excel mode: write to the row we allocated earlier
+//        final Object idx = result.getTestContext().getAttribute("ExcelRowIndex");
+//        final int rowIndex = (idx instanceof Integer) ? (Integer) idx : -1;
+//        if (rowIndex != -1) {
+//            ExecutionDataUtil.writeExecutionData(rowIndex, result);
+//        }
+//    }
 
-    /**
-     * Lightweight console logger for consistent, human-readable run output.
-     * Replace with ExtentReports/SLF4J as needed without changing call sites.
-     *
-     * @param message Descriptive step message
-     */
     private void logStep(final String message) {
         System.out.println("[EndToEndReorderFlowTest] " + message);
     }

@@ -21,7 +21,8 @@ public class PopupHandler {
     public static void dismissSavePasswordPopup() {
         try {
             WebDriver driver = DriverFactory.getDriver();
-            BasePage basePage = new BasePage() {}; // Anonymous subclass to access BasePage methods
+            BasePage basePage = new BasePage() {
+            }; // Anonymous subclass to access BasePage methods
 
             WebElement savePasswordPopupButton = driver.findElement(By.xpath(
                     "//button[contains(@aria-label, 'Save password') or contains(@aria-label, 'Never')]"

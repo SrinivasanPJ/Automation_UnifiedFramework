@@ -3,7 +3,9 @@ package com.MyridiusUAF.pages;
 import com.MyridiusUAF.base.BasePage;
 import com.MyridiusUAF.utils.data.RandomDataGenerator;
 import com.MyridiusUAF.utils.data.TestDataUpdater;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
 
@@ -64,13 +66,27 @@ public class RegisterPage extends BasePage {
 
     // ---- Public Actions -----------------------------------------------------
 
-    /** Opens the registration form. */
+    /**
+     * Ensures a string is non-null and non-blank; returns the trimmed value.
+     */
+    private static String requireNonBlank(String value, String name) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(name + " cannot be null or blank");
+        }
+        return value;
+    }
+
+    /**
+     * Opens the registration form.
+     */
     public void clickRegisterLink() {
         waitUntilClickable(registerLink, DEFAULT_TIMEOUT_SEC);
         click(registerLink, "Clicked Register link");
     }
 
-    /** Waits until the Register page header is visible. */
+    /**
+     * Waits until the Register page header is visible.
+     */
     public void waitForRegisterPage() {
         waitUntilVisible(registerPage, DEFAULT_TIMEOUT_SEC);
         log("Register page is displayed.");
@@ -78,6 +94,7 @@ public class RegisterPage extends BasePage {
 
     /**
      * Selects the user's gender radio.
+     *
      * @param gender accepted values: "male" or "female" (case-insensitive)
      */
     public void selectGender(String gender) {
@@ -89,48 +106,61 @@ public class RegisterPage extends BasePage {
         click(genderLocator, "Selected gender: " + normalized);
     }
 
-    /** Enters the user's first name. */
+    /**
+     * Enters the user's first name.
+     */
     public void enterFirstName(String firstName) {
         String v = requireNonBlank(firstName, "firstName");
         sendKeys(firstNameInput, v);
         log("Entered first name: " + v);
     }
 
-    /** Enters the user's last name. */
+    /**
+     * Enters the user's last name.
+     */
     public void enterLastName(String lastName) {
         String v = requireNonBlank(lastName, "lastName");
         sendKeys(lastNameInput, v);
         log("Entered last name: " + v);
     }
 
-    /** Enters the user's email address. */
+    /**
+     * Enters the user's email address.
+     */
     public void enterEmail(String email) {
         String v = requireNonBlank(email, "email");
         sendKeys(emailInput, v);
         log("Entered email: " + v);
     }
 
-    /** Enters the user's password (masked in logs). */
+    /**
+     * Enters the user's password (masked in logs).
+     */
     public void enterPassword(String password) {
         String v = requireNonBlank(password, "password");
         sendKeys(passwordInput, v);
         log("Entered password: [PROTECTED]");
     }
 
-    /** Enters the user's password confirmation (masked in logs). */
+    /**
+     * Enters the user's password confirmation (masked in logs).
+     */
     public void enterConfirmPassword(String confirmPassword) {
         String v = requireNonBlank(confirmPassword, "confirmPassword");
         sendKeys(confirmPasswordInput, v);
         log("Entered confirm password: [PROTECTED]");
     }
 
-    /** Submits the registration form. */
+    /**
+     * Submits the registration form.
+     */
     public void clickRegisterButton() {
         click(registerButton, "Clicked Register button");
     }
 
     /**
      * Verifies the success message appears within a timeout.
+     *
      * @param timeoutSec timeout (seconds)
      */
     public void verifyRegistrationSuccess(int timeoutSec) {
@@ -144,6 +174,8 @@ public class RegisterPage extends BasePage {
             Assert.fail("Registration success message did not appear within timeout!", e);
         }
     }
+
+    // ---- Internal Helpers ---------------------------------------------------
 
     /**
      * Full registration workflow, including random data generation and Excel update.
@@ -170,15 +202,5 @@ public class RegisterPage extends BasePage {
         enterConfirmPassword(randomPassword);
         clickRegisterButton();
         verifyRegistrationSuccess(timeoutSec);
-    }
-
-    // ---- Internal Helpers ---------------------------------------------------
-
-    /** Ensures a string is non-null and non-blank; returns the trimmed value. */
-    private static String requireNonBlank(String value, String name) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(name + " cannot be null or blank");
-        }
-        return value;
     }
 }

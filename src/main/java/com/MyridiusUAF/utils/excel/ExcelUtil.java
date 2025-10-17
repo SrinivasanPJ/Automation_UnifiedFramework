@@ -8,16 +8,17 @@ import org.apache.poi.ss.usermodel.*;
  */
 public class ExcelUtil {
 
-    private ExcelUtil() { } // Prevent instantiation
+    private ExcelUtil() {
+    } // Prevent instantiation
 
     /**
      * Finds the next available (empty) row in the sheet, starting from startRow,
      * by looking for the last non-empty cell in the specified column (runIdCol).
      *
-     * @param sheet     The Excel sheet
-     * @param runIdCol  Column index to check for filled/blank (typically Run ID col)
-     * @param startRow  Row index to start searching from (usually after header)
-     * @return          Index of next available row to write to (appends if full)
+     * @param sheet    The Excel sheet
+     * @param runIdCol Column index to check for filled/blank (typically Run ID col)
+     * @param startRow Row index to start searching from (usually after header)
+     * @return Index of next available row to write to (appends if full)
      */
     public static int findNextAvailableRow(Sheet sheet, int runIdCol, int startRow) {
         int lastFilledRow = startRow - 1;
@@ -36,10 +37,10 @@ public class ExcelUtil {
      * Finds the maximum Run ID number present in the given column for all rows,
      * expecting Run IDs like "R123".
      *
-     * @param sheet     Excel sheet
-     * @param runIdCol  Run ID column index
-     * @param startRow  Row to start (data rows, not header)
-     * @return          Highest Run ID integer found, or 0 if none
+     * @param sheet    Excel sheet
+     * @param runIdCol Run ID column index
+     * @param startRow Row to start (data rows, not header)
+     * @return Highest Run ID integer found, or 0 if none
      */
     public static int getMaxRunId(Sheet sheet, int runIdCol, int startRow) {
         int maxId = 0;
@@ -78,7 +79,8 @@ public class ExcelUtil {
             try {
                 int n = Integer.parseInt(digits);
                 if (n > max) max = n;
-            } catch (NumberFormatException ignored) { }
+            } catch (NumberFormatException ignored) {
+            }
         }
         return max;
     }
@@ -115,7 +117,7 @@ public class ExcelUtil {
      *
      * @param headerRow  Row containing headers (usually first row)
      * @param headerName Header to find (case-insensitive)
-     * @return           Column index (zero-based)
+     * @return Column index (zero-based)
      */
     public static int getColumnIndex(Row headerRow, String headerName) {
         if (headerRow == null) throw new IllegalArgumentException("Header row cannot be null");
@@ -160,7 +162,7 @@ public class ExcelUtil {
         for (int r = sheet.getLastRowNum(); r >= startRow; r--) {
             Row row = sheet.getRow(r);
             if (row == null) continue;
-            String hasVal   = getCellString(row, mustHaveCol);
+            String hasVal = getCellString(row, mustHaveCol);
             String blankVal = getCellString(row, mustBeBlankCol);
             if (!hasVal.isBlank() && blankVal.isBlank()) {
                 return r;
@@ -169,7 +171,9 @@ public class ExcelUtil {
         return -1;
     }
 
-    /** Case-insensitive match of two column values in any row (startRow..last). */
+    /**
+     * Case-insensitive match of two column values in any row (startRow..last).
+     */
     public static boolean containsPairInColumns(
             Sheet sheet,
             int colA, String valA,
@@ -194,7 +198,9 @@ public class ExcelUtil {
         return false;
     }
 
-    /** Returns the next row index to append new data (last non-blank row + 1), scanning any column. */
+    /**
+     * Returns the next row index to append new data (last non-blank row + 1), scanning any column.
+     */
     public static int findAppendRow(Sheet sheet, int startRow) {
         // default to first data row if nothing is filled yet
         int lastWithData = startRow - 1;

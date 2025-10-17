@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class LogUtil {
 
-    private LogUtil() {} // Prevent instantiation
+    private LogUtil() {
+    } // Prevent instantiation
 
     /**
      * Logs an informational message (alias for {@link #info(Class, String)}).

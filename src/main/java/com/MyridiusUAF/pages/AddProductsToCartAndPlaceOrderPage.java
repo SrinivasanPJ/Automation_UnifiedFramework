@@ -31,80 +31,113 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
     private static final Logger logger = LoggerFactory.getLogger(AddProductsToCartAndPlaceOrderPage.class);
 
     // ---- Timeouts (seconds) -------------------------------------------------
-    private static final int PAGE_LOAD_TIMEOUT     = 60;
-    private static final int ELEMENT_WAIT_SHORT    = 10;
-    private static final int ELEMENT_WAIT_MEDIUM   = 20;
+    private static final int PAGE_LOAD_TIMEOUT = 60;
+    private static final int ELEMENT_WAIT_SHORT = 10;
+    private static final int ELEMENT_WAIT_MEDIUM = 20;
 
     // ---- Reused locators / texts -------------------------------------------
-    private static final By  BAR_NOTIFICATION = By.id("bar-notification");
-    private static final By  SUGGESTION_DROPDOWN =
+    private static final By BAR_NOTIFICATION = By.id("bar-notification");
+    private static final By SUGGESTION_DROPDOWN =
             By.xpath("//ul[contains(@class,'ui-autocomplete') and contains(@style,'display: block')]");
-    private static final String SUCCESS_TEXT = "Your order has been successfully processed!";
 
     // Synthetic input map keys (kept here to avoid string scattering)
-    private static final String KEY_CATEGORY          = "Category";
-    private static final String KEY_SUB_CATEGORY      = "Sub-Category";
-    private static final String KEY_PRODUCT_TITLE     = "Product title";
-    private static final String KEY_BILL_FNAME        = "Billing FirstName";
-    private static final String KEY_BILL_LNAME        = "Billing LastName";
-    private static final String KEY_EMAIL             = "Email";
-    private static final String KEY_COUNTRY           = "Country";
-    private static final String KEY_STATE             = "State";
-    private static final String KEY_CITY              = "City";
-    private static final String KEY_ADDR1             = "Address 1";
-    private static final String KEY_ZIP               = "Zip";
-    private static final String KEY_PHONE             = "Phone";
+    private static final String KEY_CATEGORY = "Category";
+    private static final String KEY_SUB_CATEGORY = "Sub-Category";
+    private static final String KEY_PRODUCT_TITLE = "Product title";
+    private static final String KEY_BILL_FNAME = "Billing FirstName";
+    private static final String KEY_BILL_LNAME = "Billing LastName";
+    private static final String KEY_EMAIL = "Email";
+    private static final String KEY_COUNTRY = "Country";
+    private static final String KEY_STATE = "State";
+    private static final String KEY_CITY = "City";
+    private static final String KEY_ADDR1 = "Address 1";
+    private static final String KEY_ZIP = "Zip";
+    private static final String KEY_PHONE = "Phone";
 
     // ---- PageFactory elements ----------------------------------------------
-    @FindBy(css  = "div.header-links a.account") private WebElement accountLink;
+    @FindBy(css = "div.header-links a.account")
+    private WebElement accountLink;
     @FindBy(xpath = "//a[contains(@class,'active') or contains(@class,'inactive')][normalize-space()='Addresses']")
     private WebElement addressesLink;
-    @FindBy(xpath = "//input[@value='Delete']") private WebElement deleteAddressButton;
+    @FindBy(xpath = "//input[@value='Delete']")
+    private WebElement deleteAddressButton;
 
-    @FindBy(xpath = "//input[@name='estimateshipping']") private WebElement estimateShippingButton;
-    @FindBy(xpath = "//input[@id='termsofservice']") private WebElement termsOfService;
+    @FindBy(xpath = "//input[@name='estimateshipping']")
+    private WebElement estimateShippingButton;
+    @FindBy(xpath = "//input[@id='termsofservice']")
+    private WebElement termsOfService;
 
-    @FindBy(xpath = "//input[starts-with(@onclick,'Billing.save')]") private WebElement billingAddressContinueButton;
-    @FindBy(xpath = "//input[starts-with(@onclick,'Shipping.save')]") private WebElement shippingAddressContinueButton;
-    @FindBy(xpath = "//input[starts-with(@onclick,'ShippingMethod.save')]")private WebElement shippingMethodContinueButton;
-    @FindBy(xpath = "//input[starts-with(@onclick,'PaymentMethod.save')]") private WebElement paymentMethodContinueButton;
-    @FindBy(xpath = "//input[starts-with(@onclick,'PaymentInfo.save')]") private WebElement paymentInfoContinueButton;
+    @FindBy(xpath = "//input[starts-with(@onclick,'Billing.save')]")
+    private WebElement billingAddressContinueButton;
+    @FindBy(xpath = "//input[starts-with(@onclick,'Shipping.save')]")
+    private WebElement shippingAddressContinueButton;
+    @FindBy(xpath = "//input[starts-with(@onclick,'ShippingMethod.save')]")
+    private WebElement shippingMethodContinueButton;
+    @FindBy(xpath = "//input[starts-with(@onclick,'PaymentMethod.save')]")
+    private WebElement paymentMethodContinueButton;
+    @FindBy(xpath = "//input[starts-with(@onclick,'PaymentInfo.save')]")
+    private WebElement paymentInfoContinueButton;
 
-    @FindBy(xpath = "//input[@name='CardholderName']") private WebElement cardholderNameInput;
-    @FindBy(xpath = "//input[@name='CardNumber']") private WebElement cardNumberInput;
-    @FindBy(xpath = "//input[@name='CardCode']") private WebElement cardCodeInput;
+    @FindBy(xpath = "//input[@name='CardholderName']")
+    private WebElement cardholderNameInput;
+    @FindBy(xpath = "//input[@name='CardNumber']")
+    private WebElement cardNumberInput;
+    @FindBy(xpath = "//input[@name='CardCode']")
+    private WebElement cardCodeInput;
 
-    @FindBy(xpath = "//strong[text()='" + SUCCESS_TEXT + "']") private WebElement successMessage;
+    @FindBy(xpath = "//strong[text()='Your order has been successfully processed!']")
+    private WebElement successMessage;
 
-    @FindBy(xpath = "//input[starts-with(@id,'add-to-cart-button')]") private WebElement addToCartButton;
-    @FindBy(xpath = "//span[normalize-space()='Shopping cart']") private WebElement shoppingCartButton;
+    @FindBy(xpath = "//input[starts-with(@id,'add-to-cart-button')]")
+    private WebElement addToCartButton;
+    @FindBy(xpath = "//span[normalize-space()='Shopping cart']")
+    private WebElement shoppingCartButton;
 
-    @FindBy(xpath = "//select[@id='BillingNewAddress_CountryId']") private WebElement countryDropdown;
-    @FindBy(xpath = "//select[@id='BillingNewAddress_StateProvinceId']") private WebElement stateDropdown;
+    @FindBy(xpath = "//select[@id='BillingNewAddress_CountryId']")
+    private WebElement countryDropdown;
+    @FindBy(xpath = "//select[@id='BillingNewAddress_StateProvinceId']")
+    private WebElement stateDropdown;
 
-    @FindBy(xpath = "//div[@class='checkout-buttons']") private WebElement checkoutButton;
-    @FindBy(xpath = "//h1[text()='Checkout']") private WebElement checkoutHeader;
+    @FindBy(xpath = "//div[@class='checkout-buttons']")
+    private WebElement checkoutButton;
+    @FindBy(xpath = "//h1[text()='Checkout']")
+    private WebElement checkoutHeader;
 
-    @FindBy(id = "BillingNewAddress_FirstName") private WebElement billingFirstName;
-    @FindBy(id = "BillingNewAddress_LastName") private WebElement billingLastName;
-    @FindBy(id = "BillingNewAddress_Email") private WebElement billingEmail;
-    @FindBy(id = "BillingNewAddress_City") private WebElement billingCity;
-    @FindBy(id = "BillingNewAddress_Address1") private WebElement billingAddress1;
-    @FindBy(id = "BillingNewAddress_ZipPostalCode") private WebElement billingZipPostalCode;
-    @FindBy(id = "BillingNewAddress_PhoneNumber") private WebElement billingPhoneNumber;
+    @FindBy(id = "BillingNewAddress_FirstName")
+    private WebElement billingFirstName;
+    @FindBy(id = "BillingNewAddress_LastName")
+    private WebElement billingLastName;
+    @FindBy(id = "BillingNewAddress_Email")
+    private WebElement billingEmail;
+    @FindBy(id = "BillingNewAddress_City")
+    private WebElement billingCity;
+    @FindBy(id = "BillingNewAddress_Address1")
+    private WebElement billingAddress1;
+    @FindBy(id = "BillingNewAddress_ZipPostalCode")
+    private WebElement billingZipPostalCode;
+    @FindBy(id = "BillingNewAddress_PhoneNumber")
+    private WebElement billingPhoneNumber;
 
-    @FindBy(xpath = "//input[@id='small-searchterms']") private WebElement searchInput;
+    @FindBy(xpath = "//input[@id='small-searchterms']")
+    private WebElement searchInput;
 
-    @FindBy(xpath = "//input[@value='Re-order']") private WebElement reOrderButton;
-    @FindBy(xpath = "//a[@href='/customer/orders' and normalize-space()='Orders']") private WebElement ordersLink;
-    @FindBy(xpath = "//h1[normalize-space()='My account - Orders']") private WebElement ordersPageHeader;
-    @FindBy(css = "div.block-account-navigation") private WebElement sidebarLocator;
+    @FindBy(xpath = "//input[@value='Re-order']")
+    private WebElement reOrderButton;
+    @FindBy(xpath = "//a[@href='/customer/orders' and normalize-space()='Orders']")
+    private WebElement ordersLink;
+    @FindBy(xpath = "//h1[normalize-space()='My account - Orders']")
+    private WebElement ordersPageHeader;
+    @FindBy(css = "div.block-account-navigation")
+    private WebElement sidebarLocator;
 
-    @FindBy(xpath = "//input[@value='Confirm']") private WebElement confirmButton;
+    @FindBy(xpath = "//input[@value='Confirm']")
+    private WebElement confirmButton;
 
     // ───────────────────────── Public Workflow APIs ──────────────────────────
 
-    /** Opens the Orders page from the account side bar with a simple retry. */
+    /**
+     * Opens the Orders page from the account side bar with a simple retry.
+     */
     public void clickOnOrdersLink() {
         waitUntilVisible(sidebarLocator, PAGE_LOAD_TIMEOUT);
         log("Account sidebar is visible.");
@@ -128,13 +161,17 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         }
     }
 
-    /** Clicks the “Re-order” button on the Orders page. */
+    /**
+     * Clicks the “Re-order” button on the Orders page.
+     */
     public void clickOnReorderButton() {
         scrollIntoView(reOrderButton);
         click(reOrderButton, "Reorder button clicked");
     }
 
-    /** Clicks the “Account” link in the header. */
+    /**
+     * Clicks the “Account” link in the header.
+     */
     public void clickOnAccountLink() {
         click(accountLink, "Clicked Account link");
     }
@@ -165,12 +202,16 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         }
     }
 
-    /** Checks the Terms of Service box. */
+    /**
+     * Checks the Terms of Service box.
+     */
     public void clickTermsOfServiceButton() {
         click(termsOfService, "Accepted Terms of Service");
     }
 
-    /** Scrolls and confirms the checkout at the final step. */
+    /**
+     * Scrolls and confirms the checkout at the final step.
+     */
     public void checkoutConfirmation() {
         pause(2000);
         scrollToBottom();
@@ -199,13 +240,17 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         }
     }
 
-    /** Waits for the Checkout page header. */
+    /**
+     * Waits for the Checkout page header.
+     */
     public void waitForCheckoutPageVisible() {
         waitUntilVisible(checkoutHeader);
         log("Checkout page visible.");
     }
 
-    /** Adds to cart, handles notification and navigates to cart. */
+    /**
+     * Adds to cart, handles notification and navigates to cart.
+     */
     public void addToCartAndGoToCart() {
         scrollIntoView(addToCartButton);
         click(addToCartButton, "Add to Cart");
@@ -216,7 +261,9 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         click(shoppingCartButton, "Open Shopping Cart");
     }
 
-    /** Searches for a product and selects the first suggestion via keyboard. */
+    /**
+     * Searches for a product and selects the first suggestion via keyboard.
+     */
     public void searchAndSelectSuggestion(String keyword) {
         waitUntilVisible(searchInput, ELEMENT_WAIT_SHORT);
         sendKeys(searchInput, keyword);
@@ -238,7 +285,9 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         log("Selected first suggestion and submitted.");
     }
 
-    /** Fills payment inputs (random holder name + supplied number & CVV). */
+    /**
+     * Fills payment inputs (random holder name + supplied number & CVV).
+     */
     public void fillPaymentInformation(String cardNumber, String cardCode) {
         String holder = generateRandomCardholderName();
         waitUntilVisible(cardholderNameInput, ELEMENT_WAIT_SHORT);
@@ -248,12 +297,16 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         log("Filled payment info (holder=" + holder + ").");
     }
 
-    /** Clicks Estimate Shipping. */
+    /**
+     * Clicks Estimate Shipping.
+     */
     public void clickOnEstimateShippingButton() {
         click(estimateShippingButton, "Estimate Shipping");
     }
 
-    /** Fills billing (and reused as shipping) details using synthetic input. */
+    /**
+     * Fills billing (and reused as shipping) details using synthetic input.
+     */
     public void fillBillingDetailsFromInput() {
         Map<String, String> d = getInputData();
 
@@ -261,13 +314,13 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         logger.info("---- synthetic inputData ----");
         d.forEach((k, v) -> logger.info("[{}] -> [{}]", k, v));
 
-        sendKeys(billingFirstName,   d.get(KEY_BILL_FNAME));
-        sendKeys(billingLastName,    d.get(KEY_BILL_LNAME));
-        sendKeys(billingEmail,       d.get(KEY_EMAIL));
+        sendKeys(billingFirstName, d.get(KEY_BILL_FNAME));
+        sendKeys(billingLastName, d.get(KEY_BILL_LNAME));
+        sendKeys(billingEmail, d.get(KEY_EMAIL));
         selectByVisibleText(countryDropdown, d.get(KEY_COUNTRY));
         selectStateOption(d.get(KEY_STATE));
-        sendKeys(billingCity,        d.get(KEY_CITY));
-        sendKeys(billingAddress1,    d.get(KEY_ADDR1));
+        sendKeys(billingCity, d.get(KEY_CITY));
+        sendKeys(billingAddress1, d.get(KEY_ADDR1));
         sendKeys(billingZipPostalCode, d.get(KEY_ZIP));
         sendKeys(billingPhoneNumber, d.get(KEY_PHONE));
         log("Filled billing & shipping details.");
@@ -275,11 +328,25 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
 
     // ---- Continue buttons in checkout flow ---------------------------------
 
-    public void clickOnBillingAddressContinueButton()  { click(billingAddressContinueButton,  "Billing Address → Continue"); }
-    public void clickOnShippingAddressContinueButton() { click(shippingAddressContinueButton, "Shipping Address → Continue"); }
-    public void clickOnShippingMethodContinueButton()  { click(shippingMethodContinueButton,  "Shipping Method → Continue"); }
-    public void clickOnPaymentMethodContinueButton()   { click(paymentMethodContinueButton,   "Payment Method → Continue"); }
-    public void clickOnPaymentInfoContinueButton()     { click(paymentInfoContinueButton,     "Payment Info → Continue"); }
+    public void clickOnBillingAddressContinueButton() {
+        click(billingAddressContinueButton, "Billing Address → Continue");
+    }
+
+    public void clickOnShippingAddressContinueButton() {
+        click(shippingAddressContinueButton, "Shipping Address → Continue");
+    }
+
+    public void clickOnShippingMethodContinueButton() {
+        click(shippingMethodContinueButton, "Shipping Method → Continue");
+    }
+
+    public void clickOnPaymentMethodContinueButton() {
+        click(paymentMethodContinueButton, "Payment Method → Continue");
+    }
+
+    public void clickOnPaymentInfoContinueButton() {
+        click(paymentInfoContinueButton, "Payment Info → Continue");
+    }
 
     /**
      * Selects a payment method by label, retrying with JS if necessary.
@@ -302,11 +369,15 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
 
         boolean selected = false;
         for (int i = 0; i < 5; i++) {
-            if (radio.isSelected()) { selected = true; break; }
+            if (radio.isSelected()) {
+                selected = true;
+                break;
+            }
             pause(500);
         }
         if (!selected) {
-            jsClick(radio); pause(500);
+            jsClick(radio);
+            pause(500);
             if (!radio.isSelected()) {
                 throw new RuntimeException("Payment method '" + paymentMethodName + "' could not be selected");
             }
@@ -314,21 +385,27 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         log("Payment method selected: " + paymentMethodName);
     }
 
-    /** Clicks the Checkout button on the cart page. */
+    /**
+     * Clicks the Checkout button on the cart page.
+     */
     public void clickCheckoutButton() {
         click(checkoutButton, "Checkout");
     }
 
-    /** Verifies that the order success banner is displayed. */
+    /**
+     * Verifies that the order success banner is displayed.
+     */
     public void verifyOrderSuccessMessage() {
         waitUntilVisible(successMessage);
-        waitUntilTextPresent(successMessage, SUCCESS_TEXT, ELEMENT_WAIT_SHORT);
+        //waitUntilTextPresent(successMessage, "your order", ELEMENT_WAIT_SHORT);
         log("Order success message verified.");
     }
 
     // ─────────────────────────── Private helpers ─────────────────────────────
 
-    /** Selects an explicit state or a random one if the value is blank. */
+    /**
+     * Selects an explicit state or a random one if the value is blank.
+     */
     private void selectStateOption(String state) {
         Select select = new Select(stateDropdown);
         pause(3000); // site-specific delay; retained intentionally
@@ -352,7 +429,9 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         }
     }
 
-    /** Confirms alert, refreshes, and verifies delete control disappears. */
+    /**
+     * Confirms alert, refreshes, and verifies delete control disappears.
+     */
     private void handleAlertAndRefresh(String logMsg) {
         Alert alert = driver.switchTo().alert();
         log("Alert displayed: " + alert.getText());
@@ -368,7 +447,9 @@ public class AddProductsToCartAndPlaceOrderPage extends BasePage {
         log(deleted ? "Address deleted successfully." : "Delete button still visible after attempt.");
     }
 
-    /** Small wrapper around Thread.sleep with interruption handling. */
+    /**
+     * Small wrapper around Thread.sleep with interruption handling.
+     */
     private void pause(long millis) {
         try {
             Thread.sleep(millis);

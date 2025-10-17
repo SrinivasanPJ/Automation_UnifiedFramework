@@ -3,13 +3,14 @@ package com.MyridiusUAF.utils.data;
 import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.utils.excel.ExcelUtil;
 import com.MyridiusUAF.utils.reporting.LogUtil;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * Utility for updating username/email and password for a given TestID in Excel,
@@ -18,16 +19,23 @@ import java.time.format.DateTimeFormatter;
  */
 public class TestDataUpdater {
 
-    /**
-     * Updates the username/email and password for a given TestID in the Login Excel sheet.
-     * Also updates register date and time to current values.
-     *
-     * @param testID      TestID identifying the row.
-     * @param newUsername The new username/email.
-     * @param newPassword The new password.
-     * @throws RuntimeException if sheet or TestID is not found, or IO error occurs.
-     */
     public static void updateUsernameAndPassword(String testID, String newUsername, String newPassword) {
+        // If DB mode is ON, persist to DB and return
+        if (com.MyridiusUAF.utils.db.DataMode.isDb()) {
+            var nowDate = java.time.LocalDate.now();
+            var nowTime = java.time.LocalTime.now();
+            new com.MyridiusUAF.utils.db.dao.LoginDataDao()
+                    .upsertCredentials(testID, newUsername, newPassword, nowDate, nowTime);
+
+            com.MyridiusUAF.utils.reporting.LogUtil.info(
+                    TestDataUpdater.class,
+                    String.format("DB mode: upserted credentials for TestID=%s (Register %s %s)",
+                            testID, nowDate, nowTime.withNano(0))
+            );
+            return; // keep Excel untouched in DB mode
+        }
+
+        // ---------- Legacy Excel path (unchanged) ----------
         String filePath = ConfigReader.getProperty("Test_Data_File_Path");
         String sheetName = ConfigReader.getProperty("Login_Data_Sheet_Name");
 
@@ -38,9 +46,9 @@ public class TestDataUpdater {
             if (sheet == null) throw new RuntimeException("Sheet not found: " + sheetName);
 
             Row headerRow = sheet.getRow(0);
-            int testIdCol       = ExcelUtil.getColumnIndex(headerRow, "TestID");
-            int usernameCol     = ExcelUtil.getColumnIndex(headerRow, "Username");
-            int passwordCol     = ExcelUtil.getColumnIndex(headerRow, "Password");
+            int testIdCol = ExcelUtil.getColumnIndex(headerRow, "TestID");
+            int usernameCol = ExcelUtil.getColumnIndex(headerRow, "Username");
+            int passwordCol = ExcelUtil.getColumnIndex(headerRow, "Password");
             int registerDateCol = ExcelUtil.getColumnIndex(headerRow, "Register Date");
             int registerTimeCol = ExcelUtil.getColumnIndex(headerRow, "Register Time");
 
@@ -48,7 +56,8 @@ public class TestDataUpdater {
             for (int r = 1; r <= sheet.getLastRowNum(); r++) {
                 Row row = sheet.getRow(r);
                 if (row == null) continue;
-                String val = row.getCell(testIdCol, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).toString().trim();
+                String val = row.getCell(testIdCol, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK)
+                        .toString().trim();
                 if (val.equalsIgnoreCase(testID.trim())) {
                     targetRowIdx = r;
                     break;
@@ -57,18 +66,14 @@ public class TestDataUpdater {
             if (targetRowIdx == -1) throw new RuntimeException("TestID not found: " + testID);
 
             Row row = sheet.getRow(targetRowIdx);
-
-            // Create style once for all cells
             CellStyle style = workbook.createCellStyle();
 
-            // Update username/email and password
             ExcelUtil.setCellValue(row, usernameCol, newUsername, style);
             ExcelUtil.setCellValue(row, passwordCol, newPassword, style);
 
-            // Update register date/time to current system values
-            LocalDateTime now = LocalDateTime.now();
-            String dateStr = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            String timeStr = now.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+            var now = java.time.LocalDateTime.now();
+            String dateStr = now.toLocalDate().toString();                     // yyyy-MM-dd
+            String timeStr = now.toLocalTime().withNano(0).toString();         // HH:mm:ss
 
             ExcelUtil.setCellValue(row, registerDateCol, dateStr, style);
             ExcelUtil.setCellValue(row, registerTimeCol, timeStr, style);
@@ -78,7 +83,7 @@ public class TestDataUpdater {
             }
 
             LogUtil.info(TestDataUpdater.class, String.format(
-                    "Updated Username/Password and Register Date/Time for TestID: %s (Date: %s, Time: %s)",
+                    "Excel mode: Updated creds & Register Date/Time for TestID=%s (Date=%s, Time=%s)",
                     testID, dateStr, timeStr
             ));
 
@@ -88,3 +93,4 @@ public class TestDataUpdater {
         }
     }
 }
+

@@ -1,9 +1,19 @@
 package com.MyridiusUAF.SystemTest;
 
 import com.MyridiusUAF.base.BaseTest;
+import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.utils.annotations.TestType;
+import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
+import com.MyridiusUAF.utils.excel.ExcelUtil;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * SystemTest: Verifies the order creation workflow with "Cash on Delivery" (COD) payment option.
@@ -17,7 +27,6 @@ import org.testng.annotations.Test;
  * </ul>
  * Result and test evidence are automatically tracked in reporting and Excel.
  */
-// System Test
 @TestType(TestType.Kind.SYSTEM)
 public class OrderCreationWithCODTest extends BaseTest {
 
@@ -28,8 +37,8 @@ public class OrderCreationWithCODTest extends BaseTest {
      */
     @Test(description = "Add products to cart with COD order", priority = 1)
     public void addProductsToCartWithCOD(ITestContext context) throws InterruptedException {
-        initializeTestContext("1", "Ip1", context);    // Data-driven: TestID=1, InputID=Ip1
-        performLogin("1");
+        initializeTestContext("3", "Ip1", context);    // TestID=1, InputID=Ip1 (DB or Excel per config)
+        performLogin("3");
         addProductsToCartAndPlaceOrderPage.deleteAddress();
         addProductsToCartAndPlaceOrderPage.selectProductIfNoAddressesExist();
         addProductsToCartAndPlaceOrderPage.addToCartAndGoToCart();
@@ -41,10 +50,13 @@ public class OrderCreationWithCODTest extends BaseTest {
         addProductsToCartAndPlaceOrderPage.clickOnBillingAddressContinueButton();
         addProductsToCartAndPlaceOrderPage.clickOnShippingAddressContinueButton();
         addProductsToCartAndPlaceOrderPage.clickOnShippingMethodContinueButton();
-        // Payment method step for COD is skipped or handled inside clickOnPaymentMethodContinueButton()
         addProductsToCartAndPlaceOrderPage.clickOnPaymentMethodContinueButton();
         addProductsToCartAndPlaceOrderPage.clickOnPaymentInfoContinueButton();
         addProductsToCartAndPlaceOrderPage.checkoutConfirmation();
         addProductsToCartAndPlaceOrderPage.verifyOrderSuccessMessage();
+
+        // Go to details page and persist order evidence.
+        orderInformationPage.clickOrderDetailsLink();
+        orderInformationPage.saveDetails();  // → DB or Excel automatically
     }
 }

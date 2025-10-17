@@ -44,28 +44,18 @@ public class JiraUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(JiraUtil.class);
 
-    private static final String JIRA_URL   = ConfigReader.getProperty("jira.url");
+    private static final String JIRA_URL = ConfigReader.getProperty("jira.url");
     private static final String JIRA_EMAIL = ConfigReader.getProperty("jira.email");
     private static final String JIRA_TOKEN = ConfigReader.getProperty("jira.api.token");
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
-    private static final ObjectMapper MAPPER    = new ObjectMapper();
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private static final Pattern MEDIA_UUID = Pattern.compile(
             "\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b",
             Pattern.CASE_INSENSITIVE);
 
     // ---- Types ----------------------------------------------------------------
-
-    /** Metadata for a Jira attachment. */
-    public record JiraAttachment(String id, String contentUrl, String filename, String mimeType, String mediaId) {}
-
-    /** Best-effort network snapshot. */
-    public record NetworkInfo(
-            String hostName, String localIp, String publicIp,
-            String countryName, String countryCode, String region, String city, String isp) {}
-
-    // ---- Attachments -----------------------------------------------------------
 
     /**
      * Uploads a file to the issue and resolves its mediaId for inline ADF images.
@@ -122,13 +112,19 @@ public class JiraUtil {
         return null;
     }
 
-    /** Convenience: upload file and return its content URL or {@code null}. */
+    public static JiraAttachment attachFile(String issueKey, java.io.File file) {
+        return (file == null) ? null : attachFile(issueKey, file.getAbsolutePath());
+    }
+
+    /**
+     * Convenience: upload file and return its content URL or {@code null}.
+     */
     public static String attachFileAndGetUrl(String issueKey, String filePath) {
         JiraAttachment a = attachFile(issueKey, filePath);
         return a != null ? a.contentUrl() : null;
     }
 
-    // ---- Comments (ADF) --------------------------------------------------------
+    // ---- Attachments -----------------------------------------------------------
 
     /**
      * Adds an ADF (Atlassian Document Format) comment with rich execution details.
@@ -142,71 +138,71 @@ public class JiraUtil {
             String statusStr = switch (result.getStatus()) {
                 case ITestResult.SUCCESS -> "✅ PASSED";
                 case ITestResult.FAILURE -> "❌ FAILED";
-                case ITestResult.SKIP   -> "⏭️ SKIPPED";
+                case ITestResult.SKIP -> "⏭️ SKIPPED";
                 default -> "UNKNOWN";
             };
 
             // Links & env
             String adfReportLink = !isBlank(reportUrl) ? reportUrl : (JIRA_URL + "/browse/" + issueKey);
             String env = firstNonBlank(System.getProperty("env.name"), tryGetConfig("env.name"), "Test");
-            String browser    = String.valueOf(result.getTestContext().getAttribute("Browser"));
+            String browser = String.valueOf(result.getTestContext().getAttribute("Browser"));
             String executedBy = System.getProperty("user.name");
-            String appUrl     = String.valueOf(result.getTestContext().getAttribute("ApplicationUrl") != null
+            String appUrl = String.valueOf(result.getTestContext().getAttribute("ApplicationUrl") != null
                     ? result.getTestContext().getAttribute("ApplicationUrl") : "N/A");
 
             // Host/OS/IDE
-            String osPretty    = isWindows() ? getWindowsPrettyName() : System.getProperty("os.name", "Unknown");
+            String osPretty = isWindows() ? getWindowsPrettyName() : System.getProperty("os.name", "Unknown");
             String deviceModel = isWindows() ? getWindowsDeviceModel() : "N/A";
-            String ideInfo     = detectIDE();
-            NetworkInfo net    = getNetworkInfo();
-            String runsOn      = detectRunner();
+            String ideInfo = detectIDE();
+            NetworkInfo net = getNetworkInfo();
+            String runsOn = detectRunner();
 
             // Times
-            ZoneId zone           = ZoneId.systemDefault();
+            ZoneId zone = ZoneId.systemDefault();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
-            String startStr   = Instant.ofEpochMilli(result.getStartMillis()).atZone(zone).format(dtf);
-            String endStr     = Instant.ofEpochMilli(result.getEndMillis()).atZone(zone).format(dtf);
-            String duration   = formatDuration(Math.max(0L, result.getEndMillis() - result.getStartMillis()));
+            String startStr = Instant.ofEpochMilli(result.getStartMillis()).atZone(zone).format(dtf);
+            String endStr = Instant.ofEpochMilli(result.getEndMillis()).atZone(zone).format(dtf);
+            String duration = formatDuration(Math.max(0L, result.getEndMillis() - result.getStartMillis()));
 
             // Build ADF (kept as JSON string to preserve existing behavior/format)
             final StringBuilder content = new StringBuilder();
             content.append("""
-            {
-              "body": {
-                "type": "doc",
-                "version": 1,
-                "content": [
-                  { "type": "heading", "attrs": {"level": 2}, "content": [{ "type": "text", "text": "🔹 Automated Test Execution Summary" }] },
-                  { "type": "bulletList", "content": [
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test Name: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test Class: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Status: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Executed On: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Environment: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Browser: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Executed By: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Application URL: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Device Model: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Operating System: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Runs On: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "IDE: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Host Name: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Local IP: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Public IP: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Country: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test Start Time: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test End Time: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
-                    { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Execution Duration: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] }
-                  ]},
-                  { "type": "paragraph", "content": [
-                    { "type": "text", "text": "View Full Automation Report: ", "marks": [{"type":"strong"}]},
-                    { "type": "text", "text": "Open Report", "marks": [{ "type": "link", "attrs": { "href": "%s" } }] }
-                  ]}
-            """.formatted(
+                    {
+                      "body": {
+                        "type": "doc",
+                        "version": 1,
+                        "content": [
+                          { "type": "heading", "attrs": {"level": 2}, "content": [{ "type": "text", "text": "🔹 Automated Test Execution Summary" }] },
+                          { "type": "bulletList", "content": [
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test Name: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test Class: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Status: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Executed On: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                    
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Environment: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Browser: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Executed By: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                    
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Application URL: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Device Model: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Operating System: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                    
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Runs On: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "IDE: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Host Name: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Local IP: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Public IP: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Country: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                    
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test Start Time: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Test End Time: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] },
+                            { "type": "listItem", "content": [{ "type": "paragraph", "content": [ { "type": "text", "text": "Execution Duration: ", "marks": [{"type":"strong"}]}, { "type": "text", "text": "%s" } ] }] }
+                          ]},
+                          { "type": "paragraph", "content": [
+                            { "type": "text", "text": "View Full Automation Report: ", "marks": [{"type":"strong"}]},
+                            { "type": "text", "text": "Open Report", "marks": [{ "type": "link", "attrs": { "href": "%s" } }] }
+                          ]}
+                    """.formatted(
                     escapeForJson(result.getName()),
                     escapeForJson(result.getTestClass().getName()),
                     statusStr,
@@ -270,14 +266,18 @@ public class JiraUtil {
         }
     }
 
-    /** Back-compat overload: without screenshot. */
+    /**
+     * Back-compat overload: without screenshot.
+     */
     public static void addADFComment(String issueKey, ITestResult result, String reportUrl) {
         addADFComment(issueKey, result, reportUrl, null);
     }
 
-    // ---- Issues (create/search/update) ----------------------------------------
+    // ---- Comments (ADF) --------------------------------------------------------
 
-    /** Creates a new Jira issue (Task by default) with an ADF description; returns the issue key or {@code null}. */
+    /**
+     * Creates a new Jira issue (Task by default) with an ADF description; returns the issue key or {@code null}.
+     */
     public static String createIssue(String summary, String description) {
         if (isBlank(summary)) {
             LOG.warn("JIRA: create skipped, empty summary");
@@ -285,12 +285,12 @@ public class JiraUtil {
         }
         try {
             final String projectKey = ConfigReader.getProperty("jira.project.key");
-            final String issueType  = firstNonBlank(ConfigReader.getProperty("jira.issue.type"), "Task");
-            final String labelsCsv  = ConfigReader.getProperty("jira.issue.labels");
-            final String priority   = ConfigReader.getProperty("jira.issue.priority");
+            final String issueType = firstNonBlank(ConfigReader.getProperty("jira.issue.type"), "Task");
+            final String labelsCsv = ConfigReader.getProperty("jira.issue.labels");
+            final String priority = ConfigReader.getProperty("jira.issue.priority");
             final String reporterId = ConfigReader.getProperty("jira.reporter.accountId");
 
-            var root   = MAPPER.createObjectNode();
+            var root = MAPPER.createObjectNode();
             var fields = root.putObject("fields");
             fields.putObject("project").put("key", projectKey);
             fields.put("summary", summary);
@@ -315,7 +315,7 @@ public class JiraUtil {
                     if (!t.isEmpty()) labels.add(t);
                 }
             }
-            if (!isBlank(priority))   fields.putObject("priority").put("name", priority.trim());
+            if (!isBlank(priority)) fields.putObject("priority").put("name", priority.trim());
             if (!isBlank(reporterId)) fields.putObject("reporter").put("id", reporterId.trim());
 
             String payload = MAPPER.writeValueAsString(root);
@@ -343,7 +343,9 @@ public class JiraUtil {
         return null;
     }
 
-    /** JQL search by summary; returns newest issue key or {@code null}. */
+    /**
+     * JQL search by summary; returns newest issue key or {@code null}.
+     */
     public static String searchIssueBySummary(String summary) {
         if (isBlank(summary)) {
             LOG.warn("JIRA: search skipped, empty summary");
@@ -381,20 +383,24 @@ public class JiraUtil {
         return null;
     }
 
-    /** Updates summary & description; returns true on success. */
+    // ---- Issues (create/search/update) ----------------------------------------
+
+    /**
+     * Updates summary & description; returns true on success.
+     */
     public static boolean updateIssueSummaryAndDescription(String issueKey, String newSummary, String newDescription) {
         if (isBlank(issueKey)) return false;
         newSummary = trimTo255(firstNonBlank(newSummary, "Automation: " + issueKey));
         final String desc = firstNonBlank(newDescription, "");
 
         final String payload = """
-        { "fields": {
-            "summary": "%s",
-            "description": { "type":"doc","version":1,
-              "content":[{ "type":"paragraph","content":[{ "type":"text","text":"%s"}]}]
-            }
-        }}
-        """.formatted(escapeForJson(newSummary), escapeForJson(desc));
+                { "fields": {
+                    "summary": "%s",
+                    "description": { "type":"doc","version":1,
+                      "content":[{ "type":"paragraph","content":[{ "type":"text","text":"%s"}]}]
+                    }
+                }}
+                """.formatted(escapeForJson(newSummary), escapeForJson(desc));
 
         try {
             HttpRequest req = HttpRequest.newBuilder()
@@ -417,7 +423,9 @@ public class JiraUtil {
         return false;
     }
 
-    /** Find by summary or create a new Task. */
+    /**
+     * Find by summary or create a new Task.
+     */
     public static String findOrCreateIssue(String summary, String description) {
         LOG.info("JIRA: findOrCreate '{}'", summary);
         String existing = searchIssueBySummary(summary);
@@ -426,9 +434,10 @@ public class JiraUtil {
 
     // Back-compat placeholders (kept)
     public static void attachScreenshot(String issueKey, String screenshotPath) { /* optional */ }
-    public static String getIssueStatus(String issueKey) { return "Unknown"; }
 
-    // ---- Internal helpers ------------------------------------------------------
+    public static String getIssueStatus(String issueKey) {
+        return "Unknown";
+    }
 
     private static String resolveMediaId(String attachmentId) {
         try {
@@ -458,12 +467,23 @@ public class JiraUtil {
 
     private static ContentType guessContentType(String name) {
         if (name == null) return ContentType.DEFAULT_BINARY;
-        String n = name.toLowerCase(Locale.ROOT);
-        if (n.endsWith(".png"))  return ContentType.IMAGE_PNG;
+        String n = name.toLowerCase(java.util.Locale.ROOT);
+        if (n.endsWith(".png")) return ContentType.IMAGE_PNG;
         if (n.endsWith(".jpg") || n.endsWith(".jpeg")) return ContentType.IMAGE_JPEG;
-        if (n.endsWith(".html")) return ContentType.TEXT_HTML;
+        if (n.endsWith(".html") || n.endsWith(".htm")) return ContentType.TEXT_HTML;
+        if (n.endsWith(".md")) return ContentType.create("text/markdown", java.nio.charset.StandardCharsets.UTF_8);
+        if (n.endsWith(".txt") || n.endsWith(".log")) return ContentType.TEXT_PLAIN;
+        if (n.endsWith(".json")) return ContentType.APPLICATION_JSON;
+        if (n.endsWith(".csv")) return ContentType.create("text/csv", java.nio.charset.StandardCharsets.UTF_8);
         return ContentType.DEFAULT_BINARY;
     }
+
+    // JiraUtil.java
+    public static JiraAttachment uploadAttachment(String issueKey, String filePath) {
+        return attachFile(issueKey, filePath);
+    }
+
+    // ---- Internal helpers ------------------------------------------------------
 
     private static String detectRunner() {
         if (System.getenv("JENKINS_HOME") != null) return "Jenkins";
@@ -477,8 +497,10 @@ public class JiraUtil {
 
     private static String formatDuration(long millis) {
         long s = millis / 1000;
-        long h = s / 3600; s %= 3600;
-        long m = s / 60;   s %= 60;
+        long h = s / 3600;
+        s %= 3600;
+        long m = s / 60;
+        s %= 60;
         return (h > 0) ? String.format("%02dh %02dm %02ds", h, m, s)
                 : String.format("%02dm %02ds", m, s);
     }
@@ -492,16 +514,22 @@ public class JiraUtil {
                 LOG.error("JIRA: {} failed [{}]: {} -> {}", action, status, firstField, errors.get(firstField).asText());
                 return;
             }
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
         LOG.error("JIRA: {} failed [{}]: {}", action, status, body);
     }
 
     private static String encodeAuth() {
         return Base64.getEncoder().encodeToString((JIRA_EMAIL + ":" + JIRA_TOKEN).getBytes(StandardCharsets.UTF_8));
     }
-    private static String authHeader() { return "Basic " + encodeAuth(); }
 
-    private static boolean isBlank(String s) { return s == null || s.isBlank(); }
+    private static String authHeader() {
+        return "Basic " + encodeAuth();
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
+    }
 
     private static String escapeForJson(String v) {
         if (v == null) return "";
@@ -521,8 +549,6 @@ public class JiraUtil {
         }
     }
 
-    // ---- OS / Device (Windows) ------------------------------------------------
-
     private static boolean isWindows() {
         return System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("windows");
     }
@@ -532,13 +558,15 @@ public class JiraUtil {
         String displayVersion = runPowerShell("(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion').DisplayVersion");
         if (isBlank(caption) && isBlank(displayVersion)) {
             String base = System.getProperty("os.name", "Windows");
-            String ver  = System.getProperty("os.version", "");
+            String ver = System.getProperty("os.version", "");
             return ver.isBlank() ? base : base + " " + ver;
         }
         caption = caption == null ? "" : caption.trim();
         displayVersion = displayVersion == null ? "" : displayVersion.trim();
         return displayVersion.isBlank() ? caption : caption + " " + displayVersion;
     }
+
+    // ---- OS / Device (Windows) ------------------------------------------------
 
     private static String getWindowsDeviceModel() {
         String model = runPowerShell("(Get-CimInstance Win32_ComputerSystem | Select-Object -Expand Model)");
@@ -547,7 +575,9 @@ public class JiraUtil {
         return !isBlank(csName) ? csName.trim() : "N/A";
     }
 
-    /** Executes a short PowerShell command and returns the first non-empty line (Windows only). */
+    /**
+     * Executes a short PowerShell command and returns the first non-empty line (Windows only).
+     */
     private static String runPowerShell(String ps) {
         if (!isWindows()) return null;
         ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps);
@@ -558,7 +588,10 @@ public class JiraUtil {
                 String line, chosen = null;
                 while ((line = r.readLine()) != null) {
                     line = line.trim();
-                    if (!line.isEmpty()) { chosen = line; break; }
+                    if (!line.isEmpty()) {
+                        chosen = line;
+                        break;
+                    }
                 }
                 p.waitFor();
                 return chosen;
@@ -569,12 +602,13 @@ public class JiraUtil {
         }
     }
 
-    // ---- Network / IDE --------------------------------------------------------
-
     private static NetworkInfo getNetworkInfo() {
         String host = null, localIp = null, publicIp = null, countryName = null, countryCode = null, region = null, city = null, isp = null;
 
-        try { host = java.net.InetAddress.getLocalHost().getHostName(); } catch (Exception ignored) {}
+        try {
+            host = java.net.InetAddress.getLocalHost().getHostName();
+        } catch (Exception ignored) {
+        }
 
         try {
             var ifaces = java.net.NetworkInterface.getNetworkInterfaces();
@@ -591,25 +625,27 @@ public class JiraUtil {
                 }
                 if (localIp != null) break;
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         try {
             String url = firstNonBlank(System.getProperty("geo.service.url"), tryGetConfig("geo.service.url"), "https://ipapi.co/json");
             HttpRequest req = HttpRequest.newBuilder(URI.create(url))
-                    .header("User-Agent","MyridiusUAF/1.0")
+                    .header("User-Agent", "MyridiusUAF/1.0")
                     .timeout(java.time.Duration.ofSeconds(5))
                     .GET().build();
             HttpResponse<String> resp = HTTP_CLIENT.send(req, HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
                 var root = MAPPER.readTree(resp.body());
-                publicIp    = optText(root,"ip");
-                countryName = firstNonBlank(optText(root,"country_name"), optText(root,"countryName"));
-                countryCode = firstNonBlank(optText(root,"country"), optText(root,"countryCode"));
-                region      = firstNonBlank(optText(root,"region"), optText(root,"region_name"), optText(root,"state"));
-                city        = optText(root,"city");
-                isp         = firstNonBlank(optText(root,"org"), optText(root,"org_name"), optText(root,"asn_org"));
+                publicIp = optText(root, "ip");
+                countryName = firstNonBlank(optText(root, "country_name"), optText(root, "countryName"));
+                countryCode = firstNonBlank(optText(root, "country"), optText(root, "countryCode"));
+                region = firstNonBlank(optText(root, "region"), optText(root, "region_name"), optText(root, "state"));
+                city = optText(root, "city");
+                isp = firstNonBlank(optText(root, "org"), optText(root, "org_name"), optText(root, "asn_org"));
             }
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
 
         if (isBlank(countryName)) {
             var loc = Locale.getDefault();
@@ -618,14 +654,14 @@ public class JiraUtil {
         }
 
         return new NetworkInfo(
-                firstNonBlank(host,"N/A"),
-                firstNonBlank(localIp,"N/A"),
-                firstNonBlank(publicIp,"N/A"),
-                firstNonBlank(countryName,"N/A"),
-                firstNonBlank(countryCode,""),
-                firstNonBlank(region,""),
-                firstNonBlank(city,""),
-                firstNonBlank(isp,"N/A")
+                firstNonBlank(host, "N/A"),
+                firstNonBlank(localIp, "N/A"),
+                firstNonBlank(publicIp, "N/A"),
+                firstNonBlank(countryName, "N/A"),
+                firstNonBlank(countryCode, ""),
+                firstNonBlank(region, ""),
+                firstNonBlank(city, ""),
+                firstNonBlank(isp, "N/A")
         );
     }
 
@@ -635,11 +671,15 @@ public class JiraUtil {
         return (v == null || v.isNull()) ? null : v.asText();
     }
 
-    /** Detects common IDEs from runtime hints (best effort). */
+    // ---- Network / IDE --------------------------------------------------------
+
+    /**
+     * Detects common IDEs from runtime hints (best effort).
+     */
     private static String detectIDE() {
         String agent = getJavaAgentPathArg("idea_rt.jar");
         if (agent != null) {
-            String norm = agent.replace('\\','/');
+            String norm = agent.replace('\\', '/');
             int i = norm.toLowerCase(Locale.ROOT).indexOf("/lib/idea_rt.jar");
             if (i > 0) {
                 String root = norm.substring(0, i);
@@ -670,8 +710,12 @@ public class JiraUtil {
     }
 
     private static boolean isClassPresent(String name) {
-        try { Class.forName(name, false, JiraUtil.class.getClassLoader()); return true; }
-        catch (Throwable ignore) { return false; }
+        try {
+            Class.forName(name, false, JiraUtil.class.getClassLoader());
+            return true;
+        } catch (Throwable ignore) {
+            return false;
+        }
     }
 
     private static String firstNonBlank(String... vals) {
@@ -679,7 +723,9 @@ public class JiraUtil {
         return null;
     }
 
-    /** Public utility so callers can cap titles safely. */
+    /**
+     * Public utility so callers can cap titles safely.
+     */
     public static String trimTo255(String s) {
         return (s == null) ? null : (s.length() > 255 ? s.substring(0, 255) : s);
     }
@@ -687,10 +733,10 @@ public class JiraUtil {
     public static void addComment(String issueKey, String comment) {
         if (isBlank(issueKey) || isBlank(comment)) return;
         String body = """
-        {"body":{"type":"doc","version":1,"content":[
-          {"type":"paragraph","content":[{"type":"text","text":"%s"}]}
-        ]}}
-        """.formatted(escapeForJson(comment));
+                {"body":{"type":"doc","version":1,"content":[
+                  {"type":"paragraph","content":[{"type":"text","text":"%s"}]}
+                ]}}
+                """.formatted(escapeForJson(comment));
         try {
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(JIRA_URL + "/rest/api/3/issue/" + issueKey + "/comment"))
@@ -700,6 +746,20 @@ public class JiraUtil {
                     .build();
             HTTP_CLIENT.send(req, HttpResponse.BodyHandlers.discarding());
         } catch (Exception ignored) { /* best-effort */ }
+    }
+
+    /**
+     * Metadata for a Jira attachment.
+     */
+    public record JiraAttachment(String id, String contentUrl, String filename, String mimeType, String mediaId) {
+    }
+
+    /**
+     * Best-effort network snapshot.
+     */
+    public record NetworkInfo(
+            String hostName, String localIp, String publicIp,
+            String countryName, String countryCode, String region, String city, String isp) {
     }
 
 }

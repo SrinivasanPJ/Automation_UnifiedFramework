@@ -57,7 +57,7 @@ public class ReorderFlow {
         addPage.deleteAddress();
         addPage.clickOnOrdersLink();
         orderInfoPage.clickOrderDetailsLink();
-        orderInfoPage.openOrderDetailsForLatestRSeriesOrder();
+        orderInfoPage.openLatestOrderDetailsFromBackend();
         addPage.clickOnReorderButton();
         addPage.addProductToCartAndCheckoutWithCC();
         orderInfoPage.clickOrderDetailsLink();

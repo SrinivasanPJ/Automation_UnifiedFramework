@@ -1,6 +1,8 @@
 package com.MyridiusUAF.utils.data;
 
 import com.MyridiusUAF.config.ConfigReader;
+import com.MyridiusUAF.utils.db.DataMode;
+import com.MyridiusUAF.utils.db.dao.LoginDataDao;
 import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
 
 import java.util.List;
@@ -13,8 +15,8 @@ import java.util.Map;
  */
 public class TestDataUtil {
 
-    private static final String FILE_PATH   = ConfigReader.getProperty("Test_Data_File_Path");
-    private static final String SHEET_NAME  = ConfigReader.getProperty("Login_Data_Sheet_Name");
+    private static final String FILE_PATH = ConfigReader.getProperty("Test_Data_File_Path");
+    private static final String SHEET_NAME = ConfigReader.getProperty("Login_Data_Sheet_Name");
 
     /**
      * Returns a map of column names to values for a specific TestID row in the login data sheet.
@@ -23,6 +25,9 @@ public class TestDataUtil {
      * @return Map<String, String> representing all fields in that row, or empty map if not found.
      */
     public static Map<String, String> getTestCaseByTestID(String testID) {
+        if (DataMode.isDb()) {
+            return new LoginDataDao().byTestId(testID);
+        }
         return ExcelReaderUtil.getRowByKey(
                 FILE_PATH,
                 SHEET_NAME,
@@ -39,6 +44,9 @@ public class TestDataUtil {
      * @return 2D Object array suitable for TestNG DataProvider.
      */
     public static Object[][] getAllTestIDs() {
+        if (DataMode.isDb()) {
+            return new LoginDataDao().allTestIdsForDataProvider();
+        }
         List<Map<String, String>> rows = ExcelReaderUtil.getAllRows(FILE_PATH, SHEET_NAME);
         Object[][] out = new Object[rows.size()][1];
         for (int i = 0; i < rows.size(); i++) {

@@ -7,6 +7,10 @@ import com.MyridiusUAF.utils.excel.ExcelUtil;
 import com.MyridiusUAF.utils.reporting.LogUtil;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.MyridiusUAF.utils.db.DataMode;
+import com.MyridiusUAF.utils.db.dao.TransactionalDao;
+import com.MyridiusUAF.utils.db.dao.E2EBindingDao;
+import java.sql.*;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,25 +32,42 @@ public final class E2EBindingSyncUtil {
 
     private E2EBindingSyncUtil() { /* utility */ }
 
-    /** Lightweight value object for Transactional row data we mirror. */
-    private record TxnRow(
-            String runId,      // R-series from Transactional (mirrored into E2E)
-            String execDate,
-            String execTime,
-            String execStatus,
-            String orderId,
-            String orderDate
-    ) { }
-
-    /**
-     * 1) Locate the newest Transactional row (bottom-up) that has BOTH Order ID and Order Date.
-     * 2) If E2E already contains that (OrderID, OrderDate) pair, skip the append.
-     * 3) Otherwise, append a new row to E2E Binding mirroring execution + order fields.
-     *
-     * <p>Thread-safe for cross-listener calls.</p>
-     */
     public static synchronized void appendLatestTransactionalOrderToE2EBinding() {
-        final String filePath     = ConfigReader.getProperty("Test_Data_File_Path");
+        if (DataMode.isDb()) {
+            try (Connection c = com.MyridiusUAF.utils.db.DataSourceProvider.get().getConnection();
+                 PreparedStatement ps = c.prepareStatement(com.MyridiusUAF.utils.db.Sql.LATEST_TXN_WITH_ORDER);
+                 ResultSet rs = ps.executeQuery()) {
+
+                if (!rs.next()) return;
+
+                String application    = rs.getString("application");
+                String testType       = rs.getString("test_type");
+                String functionality  = rs.getString("functionality");
+                String scenario       = rs.getString("scenario");
+                String bindingTC      = rs.getString("test_case");
+                String runId          = rs.getString("run_id");
+                java.sql.Date execDate = rs.getDate("execution_date");
+                java.sql.Time execTime = rs.getTime("execution_time");
+                String status         = rs.getString("execution_status");
+                String orderId        = rs.getString("order_id");
+                java.sql.Date orderDate = rs.getDate("order_date");
+
+                E2EBindingDao e2e = new E2EBindingDao();
+                if (!e2e.existsOrder(orderId, orderDate)) {
+                    // use UPSERT to be idempotent (also works if a row with same run_id exists)
+                    e2e.upsertBinding(
+                            application, testType, functionality, scenario,
+                            bindingTC, runId, execDate, execTime, status,
+                            orderId, orderDate, null
+                    );
+                }
+            } catch (SQLException e) {
+                LogUtil.warn(E2EBindingSyncUtil.class, "DB E2E sync failed: " + e.getMessage());
+            }
+            return;
+        }
+
+        final String filePath = ConfigReader.getProperty("Test_Data_File_Path");
         final String txnSheetName = ConfigReader.getProperty("Transactional_Data_Sheet_Name");
         final String e2eSheetName = ConfigReader.getProperty("End_To_End_Sheet_Name");
 
@@ -73,7 +94,7 @@ public final class E2EBindingSyncUtil {
             // Global duplicate guard on (OrderID, OrderDate)
             final boolean existsInE2E = ExcelUtil.containsPairInColumns(
                     e2e,
-                    E2EBindingColumnIndex.ORDER_ID,   latest.orderId(),
+                    E2EBindingColumnIndex.ORDER_ID, latest.orderId(),
                     E2EBindingColumnIndex.ORDER_DATE, latest.orderDate(),
                     E2E_START_ROW
             );
@@ -103,19 +124,23 @@ public final class E2EBindingSyncUtil {
 
             final CellStyle bordered = createBorderStyle(workbook);
 
-            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.RUN_ID,      latest.runId(),      bordered);
-            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.EXEC_DATE,    latest.execDate(),   bordered);
-            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.EXEC_TIME,    latest.execTime(),   bordered);
-            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.EXEC_STATUS,  latest.execStatus(), bordered);
-            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.ORDER_ID,     latest.orderId(),    bordered);
-            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.ORDER_DATE,   latest.orderDate(),  bordered);
+            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.RUN_ID, latest.runId(), bordered);
+            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.EXEC_DATE, latest.execDate(), bordered);
+            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.EXEC_TIME, latest.execTime(), bordered);
+            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.EXEC_STATUS, latest.execStatus(), bordered);
+            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.ORDER_ID, latest.orderId(), bordered);
+            ExcelUtil.setCellValue(target, E2EBindingColumnIndex.ORDER_DATE, latest.orderDate(), bordered);
 
             try (FileOutputStream fos = new FileOutputStream(filePath)) {
                 workbook.write(fos);
             }
 
-            LogUtil.info(E2EBindingSyncUtil.class,
-                    "E2E Binding appended: RunID=%s, OrderID=%s, OrderDate=%s"
+//            LogUtil.info(E2EBindingSyncUtil.class,
+//                    "E2E Binding appended: RunID=%s, OrderID=%s, OrderDate=%s"
+//                            .formatted(latest.runId(), latest.orderId(), latest.orderDate()));
+
+              LogUtil.info(E2EBindingSyncUtil.class,
+                    "Mirrored %s to E2E Binding -> ID=%s, Date=%s"
                             .formatted(latest.runId(), latest.orderId(), latest.orderDate()));
 
         } catch (Exception e) {
@@ -123,8 +148,6 @@ public final class E2EBindingSyncUtil {
                     "E2E Binding sync failed: " + e.getMessage(), e);
         }
     }
-
-    // ────────────────────────── Helpers ──────────────────────────
 
     /**
      * Scans Transactional from bottom to top to find the newest row containing BOTH Order ID and Order Date.
@@ -135,7 +158,7 @@ public final class E2EBindingSyncUtil {
             Row row = txn.getRow(r);
             if (row == null) continue;
 
-            String orderId   = ExcelUtil.getCellString(row, ExcelColumnIndex.ORDER_ID);
+            String orderId = ExcelUtil.getCellString(row, ExcelColumnIndex.ORDER_ID);
             String orderDate = ExcelUtil.getCellString(row, ExcelColumnIndex.ORDER_DATE);
 
             if (!orderId.isBlank() && !orderDate.isBlank()) {
@@ -152,7 +175,11 @@ public final class E2EBindingSyncUtil {
         return null;
     }
 
-    /** Standard thin-borders cell style for consistency with other writers. */
+    // ────────────────────────── Helpers ──────────────────────────
+
+    /**
+     * Standard thin-borders cell style for consistency with other writers.
+     */
     private static CellStyle createBorderStyle(Workbook wb) {
         CellStyle style = wb.createCellStyle();
         style.setBorderTop(BorderStyle.THIN);
@@ -160,5 +187,18 @@ public final class E2EBindingSyncUtil {
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
         return style;
+    }
+
+    /**
+     * Lightweight value object for Transactional row data we mirror.
+     */
+    private record TxnRow(
+            String runId,      // R-series from Transactional (mirrored into E2E)
+            String execDate,
+            String execTime,
+            String execStatus,
+            String orderId,
+            String orderDate
+    ) {
     }
 }

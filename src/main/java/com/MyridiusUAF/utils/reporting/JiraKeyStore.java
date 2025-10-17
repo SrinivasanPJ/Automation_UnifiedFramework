@@ -26,11 +26,15 @@ public final class JiraKeyStore {
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final ConcurrentHashMap<String, String> CACHE = new ConcurrentHashMap<>();
 
-    static { load(); }
+    static {
+        load();
+    }
 
     private JiraKeyStore() { /* no instances */ }
 
-    /** Returns the JIRA issue key for a given fully-qualified test method name, or {@code null}. */
+    /**
+     * Returns the JIRA issue key for a given fully-qualified test method name, or {@code null}.
+     */
     public static String get(String methodFqn) {
         return CACHE.get(methodFqn);
     }
@@ -45,12 +49,15 @@ public final class JiraKeyStore {
         save();
     }
 
-    /** Loads the cache from disk (best-effort). */
+    /**
+     * Loads the cache from disk (best-effort).
+     */
     private static void load() {
         try {
             if (Files.exists(FILE)) {
                 byte[] bytes = Files.readAllBytes(FILE);
-                Map<String, String> m = MAPPER.readValue(bytes, new TypeReference<>() {});
+                Map<String, String> m = MAPPER.readValue(bytes, new TypeReference<>() {
+                });
                 CACHE.clear();
                 CACHE.putAll(m);
             }
@@ -59,7 +66,9 @@ public final class JiraKeyStore {
         }
     }
 
-    /** Persists the current cache to disk using an atomic replace (best-effort). */
+    /**
+     * Persists the current cache to disk using an atomic replace (best-effort).
+     */
     private static void save() {
         try {
             Files.createDirectories(FILE.getParent());

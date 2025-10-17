@@ -2,11 +2,14 @@ package com.MyridiusUAF.utils.excel;
 
 import com.MyridiusUAF.utils.reporting.LogUtil;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Enterprise utility class for reading Excel sheets as maps and lists.
@@ -14,15 +17,12 @@ import java.util.*;
  */
 public class ExcelReaderUtil {
 
+    // Formats cell values exactly as displayed in Excel (respects cell formatting)
+    private static final DataFormatter DF = new DataFormatter();
+
     /**
-     * Fetches a row as key-value pairs (header:value), searching for a row where the value in keyColumnIndex equals key.
-     * Uses header row at index 1 by default.
-     *
-     * @param filePath        Path to Excel file
-     * @param sheetName       Name of the sheet
-     * @param keyColumnIndex  Index of the column to match (e.g., 0 for "TestID")
-     * @param key             Value to search for
-     * @return                Map of header→value for that row, or exception if not found
+     * Fetches a row as key-value pairs (header:value), searching for a row where the value
+     * in keyColumnIndex equals key. Uses header row at index 1 by default.
      */
     public static Map<String, String> getRowByKey(String filePath, String sheetName, int keyColumnIndex, String key) {
         return getRowByKey(filePath, sheetName, keyColumnIndex, key, 1);
@@ -31,12 +31,11 @@ public class ExcelReaderUtil {
     /**
      * Fetches a row as key-value pairs (header:value) using a custom header row index.
      *
-     * @param filePath         Path to Excel file
-     * @param sheetName        Name of the sheet
-     * @param keyColumnIndex   Index of the column to match
-     * @param key              Value to search for
-     * @param headerRowIndex   Row index containing headers (usually 0 or 1)
-     * @return                 Map of header→value for that row
+     * @param filePath       Path to Excel file
+     * @param sheetName      Name of the sheet
+     * @param keyColumnIndex Index of the column to match (0-based)
+     * @param key            Value to search for (compared as text)
+     * @param headerRowIndex Row index containing headers (usually 0 or 1)
      */
     public static Map<String, String> getRowByKey(String filePath, String sheetName, int keyColumnIndex, String key, int headerRowIndex) {
         Map<String, String> rowData = new LinkedHashMap<>();
@@ -73,17 +72,22 @@ public class ExcelReaderUtil {
         return rowData;
     }
 
-    /**
-     * Reads all rows as List of Map<Header, Value> for a sheet (header in row 0).
-     *
-     * @param filePath   Path to Excel file
-     * @param sheetName  Name of the sheet
-     * @return           List of row maps
-     */
+    /** Reads all rows (header row @ index 0). */
     public static List<Map<String, String>> getAllRows(String filePath, String sheetName) {
+        return getAllRows(filePath, sheetName, 0);
+    }
+
+    /**
+     * Reads all rows as List<Map<header,value>> using the provided header row index.
+     *
+     * @param filePath        Path to Excel file
+     * @param sheetName       Sheet name
+     * @param headerRowIndex  Index of the header row (0-based)
+     */
+    public static List<Map<String, String>> getAllRows(String filePath, String sheetName, int headerRowIndex) {
         List<Map<String, String>> all = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(filePath);
-             Workbook wb = new XSSFWorkbook(fis)) {
+             Workbook wb = WorkbookFactory.create(fis)) {  // supports xls/xlsx
 
             Sheet sheet = wb.getSheet(sheetName);
             if (sheet == null) {
@@ -91,19 +95,22 @@ public class ExcelReaderUtil {
                 return all;
             }
 
-            Row header = sheet.getRow(0);
+            Row header = sheet.getRow(headerRowIndex);
             if (header == null) {
-                LogUtil.log(ExcelReaderUtil.class, "Header row missing in sheet: " + sheetName);
+                LogUtil.log(ExcelReaderUtil.class,
+                        "Header row missing in sheet: " + sheetName + " at index " + headerRowIndex);
                 return all;
             }
 
-            for (int r = 1; r <= sheet.getLastRowNum(); r++) {
+            for (int r = headerRowIndex + 1; r <= sheet.getLastRowNum(); r++) {
                 Row row = sheet.getRow(r);
                 if (row == null || rowIsEmpty(row)) continue;
+
                 Map<String, String> rowMap = new LinkedHashMap<>();
                 for (int c = 0; c < header.getLastCellNum(); c++) {
-                    rowMap.put(getCellValue(header.getCell(c)).trim(),
-                            getCellValue(row.getCell(c)).trim());
+                    String key = getCellValue(header.getCell(c)).trim();
+                    String val = getCellValue(row.getCell(c)).trim();
+                    rowMap.put(key, val);
                 }
                 all.add(rowMap);
             }
@@ -114,65 +121,50 @@ public class ExcelReaderUtil {
     }
 
     /**
-     * Finds the next available row (first row after row 2 with empty RunID col) for writing execution data.
-     * Used by result-writing utilities.
+     * Finds the next available row index (first row after startRowIndex with empty RunID column).
      */
-    public static int findNextAvailableRow(Sheet sheet) {
-        final int RUN_ID_COL_INDEX = 5; // Usually column F for RunID
-        for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+    public static int findNextAvailableRow(Sheet sheet, int runIdColIndex, int startRowIndex) {
+        for (int i = startRowIndex; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
-            Cell runIdCell = row.getCell(RUN_ID_COL_INDEX, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-            if (runIdCell == null || getCellValue(runIdCell).trim().isEmpty()) {
-                LogUtil.log(ExcelReaderUtil.class, "Next available row found at index " + i);
-                return i;
-            }
+            Cell cell = row.getCell(runIdColIndex, MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell == null || getCellValue(cell).trim().isEmpty()) return i;
         }
-        int nextRow = sheet.getLastRowNum() + 1;
-        LogUtil.log(ExcelReaderUtil.class, "All Run ID rows filled. Appending new row at index " + nextRow);
-        return nextRow;
+        return sheet.getLastRowNum() + 1;
     }
 
     /**
-     * Returns a Sheet object given a file path and sheet name.
-     * <b>Warning:</b> The returned Sheet is from a temporary Workbook instance and must not be used after method ends!
-     * Usually for quick row counting or header extraction only.
+     * Returns the header cells (as text) from the given header row index.
      */
-    public static Sheet getSheet(String filePath, String sheetName) {
-        try (FileInputStream fis = new FileInputStream(filePath)) {
-            Workbook wb = WorkbookFactory.create(fis);
-            return wb.getSheet(sheetName);
+    public static List<String> getHeaders(String filePath, String sheetName, int headerRowIndex) {
+        List<String> headers = new ArrayList<>();
+        try (FileInputStream fis = new FileInputStream(filePath);
+             Workbook wb = WorkbookFactory.create(fis)) {
+            Sheet sheet = wb.getSheet(sheetName);
+            Row header = (sheet != null) ? sheet.getRow(headerRowIndex) : null;
+            if (header == null) return headers;
+            for (int c = 0; c < header.getLastCellNum(); c++) {
+                headers.add(getCellValue(header.getCell(c)).trim());
+            }
         } catch (IOException e) {
-            throw new RuntimeException("Unable to get sheet: " + sheetName + " from file: " + filePath, e);
+            LogUtil.log(ExcelReaderUtil.class, "Error reading headers from " + sheetName + ": " + e.getMessage());
         }
+        return headers;
     }
 
-    /** Helper: Get cell value as string, handles null, string, number, boolean, blank. */
+    /* ---------- helpers ---------- */
+
+    /** Get cell text exactly as Excel displays it. */
     private static String getCellValue(Cell cell) {
         if (cell == null) return "";
-        return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> {
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    yield cell.getDateCellValue().toString();
-                } else {
-                    double d = cell.getNumericCellValue();
-                    long l = (long) d;
-                    yield (d == l) ? String.valueOf(l) : String.valueOf(d);
-                }
-            }
-            case BOOLEAN -> String.valueOf(cell.getBooleanCellValue());
-            case FORMULA -> cell.getCellFormula();
-            case BLANK -> "";
-            default -> "";
-        };
+        return DF.formatCellValue(cell);
     }
 
-    /** Helper: Returns true if row is empty (all cells blank). */
+    /** Returns true if a row has no non-blank cells. */
     private static boolean rowIsEmpty(Row row) {
         if (row == null) return true;
         for (int c = 0; c < row.getLastCellNum(); c++) {
-            Cell cell = row.getCell(c, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            Cell cell = row.getCell(c, MissingCellPolicy.RETURN_BLANK_AS_NULL);
             if (cell != null && !getCellValue(cell).trim().isEmpty()) return false;
         }
         return true;

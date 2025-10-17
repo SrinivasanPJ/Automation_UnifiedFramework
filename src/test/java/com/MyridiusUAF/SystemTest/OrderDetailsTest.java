@@ -4,11 +4,16 @@ import com.MyridiusUAF.base.BaseTest;
 import com.MyridiusUAF.config.ConfigReader;
 import com.MyridiusUAF.utils.annotations.TestType;
 import com.MyridiusUAF.utils.excel.ExcelColumnIndex;
-import com.MyridiusUAF.utils.excel.ExcelReaderUtil;
 import com.MyridiusUAF.utils.excel.ExcelUtil;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.testng.ITestContext;
 import org.testng.annotations.Test;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * SystemTest: Verifies order details retrieval and records the information in the transactional Excel sheet.
@@ -22,7 +27,6 @@ import org.testng.annotations.Test;
  * </ul>
  * The row index is tracked in TestNG context for post-test processing.
  */
- // System Test
 @TestType(TestType.Kind.SYSTEM)
 public class OrderDetailsTest extends BaseTest {
 
@@ -35,18 +39,14 @@ public class OrderDetailsTest extends BaseTest {
     public void orderDetails(ITestContext context) {
         initializeTestContext("1", "Ip1", context);
         performLogin("1");
+
         addProductsToCartAndPlaceOrderPage.clickOnAccountLink();
         addProductsToCartAndPlaceOrderPage.clickOnOrdersLink();
         orderInformationPage.clickOrderDetailsLink();
 
-        // Prepare Excel for evidence
-        Sheet sheet = ExcelReaderUtil.getSheet(
-                ConfigReader.getProperty("Test_Data_File_Path"),
-                ConfigReader.getProperty("Transactional_Data_Sheet_Name")
-        );
-        int rowIndex = ExcelUtil.findNextAvailableRow(sheet, ExcelColumnIndex.RUN_ID, 2);
-        context.setAttribute("ExcelRowIndex", rowIndex);
-
-        orderInformationPage.saveDetailsToExcel(rowIndex);
+        // One call that handles both backends:
+        // - DB mode: writes to DB (skips Excel)
+        // - Excel mode: computes next row & writes to Excel
+        orderInformationPage.writeDataToFile(context);
     }
 }

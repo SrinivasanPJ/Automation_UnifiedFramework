@@ -29,14 +29,14 @@ public final class ConfigReader {
     private static final String CLASSPATH_RESOURCE = "config.properties";
     private static final String TEST_RESOURCE_PATH = "src/test/resources/" + CLASSPATH_RESOURCE;
 
-    private ConfigReader() {
-        // no instances
+    static {
+        loadProperties();
     }
 
     // ---- bootstrap ----
 
-    static {
-        loadProperties();
+    private ConfigReader() {
+        // no instances
     }
 
     private static void loadProperties() {
@@ -133,14 +133,18 @@ public final class ConfigReader {
         return v;
     }
 
-    /** Parses a boolean property, defaulting to {@code defaultValue} when missing/invalid. */
+    /**
+     * Parses a boolean property, defaulting to {@code defaultValue} when missing/invalid.
+     */
     public static boolean getBoolean(String key, boolean defaultValue) {
         String v = getProperty(key);
         if (v.isEmpty()) return defaultValue;
         return Boolean.parseBoolean(v);
     }
 
-    /** Parses an integer property, defaulting to {@code defaultValue} when missing/invalid. */
+    /**
+     * Parses an integer property, defaulting to {@code defaultValue} when missing/invalid.
+     */
     public static int getInt(String key, int defaultValue) {
         String v = getProperty(key);
         if (v.isEmpty()) return defaultValue;
@@ -163,4 +167,45 @@ public final class ConfigReader {
         if (env != null && !env.isBlank()) return env.trim();
         return getDecryptedProperty(Objects.requireNonNull(propertyKey, "propertyKey"));
     }
+
+    // ---- Base64 property helpers ---------------------------------------------------
+
+    /**
+     * Reads a property that is stored in Base64 and returns the decoded UTF-8 string.
+     * Supports ${ENV_VAR} indirection (reads from System.getenv if the property value is like ${NAME}).
+     * Returns null if the resolved value is blank or missing.
+     */
+    public static String getBase64Property(String key) {
+        return getBase64Property(key, null);
+    }
+
+    /**
+     * Same as getBase64Property(key) but allows a default Base64 value.
+     */
+    public static String getBase64Property(String key, String defaultBase64) {
+        String raw = getProperty(key, defaultBase64);  // your existing method
+        raw = resolveEnvToken(raw);                    // expand ${ENV_VAR} if present
+        if (isBlank(raw)) return null;
+
+        try {
+            byte[] decoded = Base64.getDecoder().decode(raw.trim());
+            return new String(decoded, StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException badB64) {
+            throw new IllegalStateException("Invalid Base64 for property '" + key + "'", badB64);
+        }
+    }
+
+    /** Expand ${ENV_VAR} → value from System.getenv("ENV_VAR"); if not a token, returns input unchanged. */
+    private static String resolveEnvToken(String v) {
+        if (v == null) return null;
+        String s = v.trim();
+        if (s.startsWith("${") && s.endsWith("}")) {
+            String envKey = s.substring(2, s.length() - 1).trim();
+            String envVal = System.getenv(envKey);
+            return envVal != null ? envVal.trim() : null;
+        }
+        return s;
+    }
+
+    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 }

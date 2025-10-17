@@ -1,9 +1,9 @@
 package com.MyridiusUAF.utils.annotations;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 
 /**
  * Annotation to associate a test method with a JIRA ticket.
