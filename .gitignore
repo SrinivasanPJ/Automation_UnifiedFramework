@@ -49,6 +49,7 @@ logs/*.log
 # Ignore screenshots
 /screenshots/
 !screenshots/.gitkeep
+/Recordings/
 
 # Ignore logs (already added, but make it precise)
 logs/

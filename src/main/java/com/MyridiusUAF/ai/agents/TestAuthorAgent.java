@@ -34,53 +34,98 @@ public class TestAuthorAgent {
             ### Fix Suggestion
             - One concrete code/locator change; prefer CSS.
             """;
-    // --- Authoring rules the LLM must follow (kept short & strict) ---
+
+    // --- Authoring rules the LLM must follow (generic for any flow) ---
     private static final String EMBEDDED_AUTHORING_PROMPT = """
-            You are a senior Automation Engineer. Output ONE Java TestNG class only.
-            
-            HARD RULES
-            - Package: as provided.
-            - Imports: ONLY these four (no wildcards, no page imports):
-              import org.testng.annotations.Test;
-              import org.testng.ITestContext;
-              import org.testng.Assert;
-              import com.MyridiusUAF.base.BaseTest;
-            - Class extends com.MyridiusUAF.base.BaseTest.
-            - Exactly one @Test method named: orderAiTest
-              Signature: public void orderAiTest(final ITestContext context)
-            - Never instantiate WebDriver or page objects; use BaseTest fields.
-            - Arrange:
-                initializeTestContext("1","Ip1", context);
-                performLogin("1");
-            - Act (allowed methods only on addProductsToCartAndPlaceOrderPage):
-                deleteAddress(); selectProductIfNoAddressesExist(); addToCartAndGoToCart();
-                clickOnEstimateShippingButton(); clickTermsOfServiceButton(); clickCheckoutButton();
-                waitForCheckoutPageVisible(); fillBillingDetailsFromInput();
-                clickOnBillingAddressContinueButton(); clickOnShippingAddressContinueButton();
-                clickOnShippingMethodContinueButton(); selectPaymentMethod("Credit Card");
-                clickOnPaymentMethodContinueButton(); fillPaymentInformation("4485564059489345","123");
-                clickOnPaymentInfoContinueButton(); checkoutConfirmation(); verifyOrderSuccessMessage();
-            - Assert: String orderId = orderInformationPage.getOrderId();
-              Assert.assertTrue(orderId != null && !orderId.isBlank(), "Order ID should be present after placing an order.");
-            - Style: One blank line after imports, then class. No comments or extra sections.
-            - Do not import com.MyridiusUAF.pages.* or use fully-qualified org.testng.Assert.
-            """;
+        You are a senior Automation Engineer working on the Tricentis Demo Web Shop
+        UI regression suite. Output ONE Java TestNG class only.
+
+        APPLICATION UNDER TEST
+        - Public demo e-commerce site: "Tricentis Demo Web Shop".
+        - Base URL: https://demowebshop.tricentis.com/
+
+        FRAMEWORK CONSTRAINTS
+        - Test framework: Myridius Unified Automation Framework (MyridiusUAF).
+        - Base class: com.MyridiusUAF.base.BaseTest.
+        - Available page objects (protected fields on BaseTest):
+          - LoginPage loginPage;
+          - RegisterPage registerPage;
+          - ProductListPage productListPage;
+          - AddProductsToCartAndPlaceOrderPage addProductsToCartAndPlaceOrderPage;
+          - OrderInformationPage orderInformationPage;
+
+        AVAILABLE METHODS ON ProductListPage:
+          - deleteAddress()
+          - selectProductIfNoAddressesExist()
+          - selectProductBasedOnInputData()
+          - addToCartAndGoToCart()
+          - clickOnEstimateShippingButton()
+          - clickTermsOfServiceButton()
+          - clickCheckoutButton()
+          - waitForCheckoutPageVisible()
+          - fillBillingDetailsFromInput()
+          - clickOnBillingAddressContinueButton()
+          - clickOnShippingAddressContinueButton()
+          - clickOnShippingMethodContinueButton()
+          - clickOnPaymentMethodContinueButton()
+          - clickOnPaymentInfoContinueButton()
+          - checkoutConfirmation()
+          - verifyCheckoutCompletedUrl()
+
+        AVAILABLE METHODS ON LoginPage:
+          - enterEmail(String email)
+          - enterPassword(String password)
+          - clickLoginButton()
+          - clickLogoutLink()
+          - isLoggedIn() : boolean
+          - isLoggedOut() : boolean
+          - getWelcomeMessage() : String
+
+        AVAILABLE METHODS ON BaseTest:
+          - initializeTestContext(String testId, String inputId, ITestContext context)
+          - performLogin(String testId) - logs in using test data
+          - getInputData() : Map<String,String> - returns current test data
+
+        HARD RULES
+        - Package: use the package provided in the input.
+        - Class: use the class name provided in the input.
+        - Class MUST extend com.MyridiusUAF.base.BaseTest.
+        - Imports: ONLY these four (no wildcards, no extra imports):
+          import org.testng.annotations.Test;
+          import org.testng.ITestContext;
+          import org.testng.Assert;
+          import com.MyridiusUAF.base.BaseTest;
+        - Create exactly one @Test method with a descriptive name based on the story.
+        - Method signature must include (final ITestContext context) parameter.
+        - Never create or manage WebDriver; rely on BaseTest.
+        - Use the existing helper methods from BaseTest and page objects.
+        - Include at least one Assert statement to verify the expected outcome.
+        - If the story includes product listing/cart/checkout flow, use ProductListPage methods only.
+        - If the story does not provide a testId/inputId, default to "1" and "Ip1".
+
+        STYLE
+        - One blank line after imports, then the class.
+        - No comments, no TODOs, no extra helper classes.
+        - Do not import com.MyridiusUAF.pages.*.
+        - Do not use fully-qualified org.testng.Assert; always use Assert.
+        """;
+
     private final LlmClient llm;
 
     public TestAuthorAgent(LlmClient llm) {
         this.llm = llm;
     }
 
+    @SuppressWarnings("unused")
     public static String getTriageGuide() {
         return EMBEDDED_TRIAGE_GUIDE;
     }
 
     private static String stripCodeFences(String s) {
         if (s == null) return "";
-        String cleaned = s.replaceAll("(?s)```\\s*java\\s*", "")
+        return s.replaceAll("(?s)```\\s*java\\s*", "")
                 .replaceAll("(?s)```", "")
                 .trim();
-        return cleaned;
     }
 
     // ---------- helpers ----------
@@ -92,7 +137,7 @@ public class TestAuthorAgent {
     }
 
     /**
-     * Enforce imports, method signature, assertion, CC values, spacing, and the order-details click.
+     * Enforce imports, class name, assertion formatting, and spacing.
      */
     private static String postProcess(String code, String className) {
         // Remove any page imports or wildcards; normalize imports to exactly the 4 we want
@@ -100,12 +145,7 @@ public class TestAuthorAgent {
         code = code.replaceAll("(?m)^import\\s+org\\.testng\\.[^;]*\\*;\\s*\\n", "");
         code = code.replaceAll("(?m)^import\\s+com\\.MyridiusUAF\\.base\\.BaseTest;\\s*$", ""); // we'll re-add clean block
 
-        // Replace entire import block with canonical imports
-        code = code.replaceFirst(
-                "(?s)package\\s+[^;]+;\\s*\\n+((?:import\\s+[^;]+;\\s*\\n)*)",
-                "package $0".contains("package ") ? code.substring(0, code.indexOf(';') + 1) : ""
-        );
-        // Safer: rebuild header
+        // Rebuild header with canonical imports
         String header = code.substring(0, code.indexOf(';') + 1);
         String rest = code.substring(code.indexOf(';') + 1);
         String imports = """
@@ -118,45 +158,17 @@ public class TestAuthorAgent {
                 """;
         code = header + imports + rest.replaceFirst("^\\s*", "");
 
-        // Ensure class name and method signature are consistent
+        // Ensure class name is correct
         code = code.replaceAll("(?s)public\\s+class\\s+\\w+\\s+extends\\s+BaseTest", "public class " + className + " extends BaseTest");
-        code = code.replaceAll(
-                "(?s)@Test\\s*public\\s+void\\s+\\w+\\s*\\([^)]*\\)",
-                "@Test\n    public void orderAiTest(final ITestContext context)"
-        );
-
-        // Force CC number (16) and CVV (3)
-        code = code.replaceAll(
-                "fillPaymentInformation\\s*\\(\\s*\"[^\"]+\"\\s*,\\s*\"[^\"]+\"\\s*\\)",
-                "fillPaymentInformation(\"4485564059489345\", \"123\")"
-        );
 
         // Use Assert (not fully-qualified)
         code = code.replace("org.testng.Assert.", "Assert.");
 
         // Fix "&&" that sometimes arrives Unicode/HTML-escaped
         code = code
-                .replace("\\u0026\\u0026", "&&")   // literal Java-escaped
-                .replace("u0026u0026", "&&")       // raw text
-                .replace("&amp;&amp;", "&&");      // HTML-escaped
-
-        // >>> Ensure we click the order details link before reading the ID <<<
-        if (!code.contains("orderInformationPage.clickOrderDetailsLink()")) {
-            // Prefer right after verifyOrderSuccessMessage();
-            String afterVerify = code.replaceFirst(
-                    "(?m)(\\bverifyOrderSuccessMessage\\s*\\(\\s*\\)\\s*;)",
-                    "$1\n        orderInformationPage.clickOrderDetailsLink();"
-            );
-            if (!afterVerify.equals(code)) {
-                code = afterVerify;
-            } else {
-                // Fallback: just before we get the orderId
-                code = code.replaceFirst(
-                        "(?m)^\\s*(String\\s+orderId\\s*=\\s*orderInformationPage\\.getOrderId\\s*\\(\\s*\\)\\s*;)",
-                        "        orderInformationPage.clickOrderDetailsLink();\n        $1"
-                );
-            }
-        }
+                .replace("\\u0026\\u0026", "&&")
+                .replace("u0026u0026", "&&")
+                .replace("&amp;&amp;", "&&");
 
         // Exactly one blank line between imports and class
         code = code.replaceAll("\\n{3,}", "\n\n");
@@ -166,14 +178,13 @@ public class TestAuthorAgent {
 
     public Path generateTest(String packageName, String className, String userStory, Path testSrcRoot) {
         try {
-            String system = EMBEDDED_AUTHORING_PROMPT;
             String user = """
                     Package: %s
                     Class: %s
                     Story: %s
                     """.formatted(packageName, className, userStory);
 
-            String code = llm.chat(system, user);
+            String code = llm.chat(EMBEDDED_AUTHORING_PROMPT, user);
             code = stripCodeFences(code);
             code = ensurePackageHeader(code, packageName);
             code = postProcess(code, className); // <- enforce your exact rules

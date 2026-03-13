@@ -65,25 +65,44 @@ public final class ConfigReader {
         }
     }
 
+    // ---- helper methods ----
+
+    /** Expand ${ENV_VAR} → value from System.getenv("ENV_VAR"); if not a token, returns input unchanged. */
+    private static String resolveEnvToken(String v) {
+        if (v == null) return null;
+        String s = v.trim();
+        if (s.startsWith("${") && s.endsWith("}")) {
+            String envKey = s.substring(2, s.length() - 1).trim();
+            String envVal = System.getenv(envKey);
+            return envVal != null ? envVal.trim() : null;
+        }
+        return s;
+    }
+
+    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
+
     // ---- public API (backward compatible) ----
 
     /**
      * Returns the property for {@code key}. If absent, returns an empty string.
      * <p>System properties (-Dkey=value) take precedence over file values.</p>
+     * <p>Supports ${ENV_VAR} expansion.</p>
      */
     public static String getProperty(String key) {
         String sys = System.getProperty(key);
-        if (sys != null) return sys.trim();
-        return PROPS.getProperty(key, "").trim();
+        if (sys != null) return resolveEnvToken(sys.trim());
+        String val = PROPS.getProperty(key, "").trim();
+        return resolveEnvToken(val);
     }
 
     /**
      * Returns the property for {@code key}. If absent, returns {@code defaultValue}.
      * <p>System properties (-Dkey=value) take precedence over file values.</p>
+     * <p>Supports ${ENV_VAR} expansion.</p>
      */
     public static String getProperty(String key, String defaultValue) {
         String sys = System.getProperty(key);
-        if (sys != null) return sys.trim();
+        if (sys != null) return resolveEnvToken(sys.trim());
 
         String val = PROPS.getProperty(key);
         if (val == null) {
@@ -91,7 +110,7 @@ public final class ConfigReader {
                     "Missing config key '" + key + "', using default '" + defaultValue + "'");
             return defaultValue;
         }
-        return val.trim();
+        return resolveEnvToken(val.trim());
     }
 
     /**
@@ -195,17 +214,4 @@ public final class ConfigReader {
         }
     }
 
-    /** Expand ${ENV_VAR} → value from System.getenv("ENV_VAR"); if not a token, returns input unchanged. */
-    private static String resolveEnvToken(String v) {
-        if (v == null) return null;
-        String s = v.trim();
-        if (s.startsWith("${") && s.endsWith("}")) {
-            String envKey = s.substring(2, s.length() - 1).trim();
-            String envVal = System.getenv(envKey);
-            return envVal != null ? envVal.trim() : null;
-        }
-        return s;
-    }
-
-    private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
 }

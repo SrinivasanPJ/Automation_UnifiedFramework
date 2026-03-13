@@ -196,7 +196,7 @@ public class SelfHealingLocator {
             try {
                 log.debug("[HEALING] Trying candidate: {}", b);
                 WebElement el = driver.findElement(b);
-                log.info("[HEALING] ✅ Healed with: {}", b);
+                log.info("[HEALING] Healed with: {}", b);
                 return el;
             } catch (NoSuchElementException | InvalidSelectorException ignored) {
                 // keep trying

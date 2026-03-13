@@ -1,8 +1,10 @@
 package com.MyridiusUAF.cli;
 
 import com.MyridiusUAF.ai.AiSwitches;
+import com.MyridiusUAF.ai.LlmClient;
+import com.MyridiusUAF.ai.LlmClientFactory;
 import com.MyridiusUAF.ai.agents.TestAuthorAgent;
-import com.MyridiusUAF.ai.clients.OpenAiClient;
+import com.MyridiusUAF.ai.openai.OpenAiLlmClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +49,26 @@ public class AiGenerateTest {
         final String story = Arrays.stream(args, 0, storyEndExclusive)
                 .collect(Collectors.joining(" "));
 
-        var agent = new TestAuthorAgent(new OpenAiClient());
+        if (!AiSwitches.authoringEnabled()) {
+            log.error("AI test authoring is disabled. Set ai.authoring.enabled=true in config.properties.");
+            System.exit(1);
+        }
+
+        LlmClient llm = LlmClientFactory.maybeCreate();
+        if (llm == null) {
+            log.error("Unable to create LLM client. Check openai.apiKey/openai.model in config.properties.");
+            System.exit(1);
+        }
+
+        var agent = new TestAuthorAgent(llm);
         Path testRoot = Path.of("src/test/java");
         Path out = agent.generateTest(pkg, className, story, testRoot);
 
         log.info("Generated test at: {}", out.toAbsolutePath());
+
+        // Log token usage if using OpenAI client
+        if (llm instanceof OpenAiLlmClient openAiClient) {
+            openAiClient.logSessionUsage();
+        }
     }
 }

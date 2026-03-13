@@ -171,14 +171,45 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <mainClass>com.MyridiusUAF.cli.AiGenerateTest</mainClass>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>exec-maven-plugin</artifactId>-->
+<!--                <version>3.0.0</version>-->
+
+<!--                <executions>-->
+<!--                    &lt;!&ndash; Existing AI test generator &ndash;&gt;-->
+<!--                    <execution>-->
+<!--                        <id>ai-generate-test</id>-->
+<!--                        <goals>-->
+<!--                            <goal>java</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <mainClass>com.MyridiusUAF.cli.AiGenerateTest</mainClass>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+
+<!--                    &lt;!&ndash; NEW: Synthetic data generator &ndash;&gt;-->
+<!--                    <execution>-->
+<!--                        <id>ai-generate-synthetic-data</id>-->
+<!--                        <goals>-->
+<!--                            <goal>java</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <mainClass>com.MyridiusUAF.cli.AiGenerateSyntheticData</mainClass>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                    &lt;!&ndash; NEW: Page generator &ndash;&gt;-->
+<!--                    <execution>-->
+<!--                        <id>ai-generate-page</id>-->
+<!--                        <goals>-->
+<!--                            <goal>java</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <mainClass>com.MyridiusUAF.cli.AiGeneratePage</mainClass>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
 
             <!-- Maven Enforcer Plugin: Enforces build rules, JDK, dependency bans -->
             <plugin>

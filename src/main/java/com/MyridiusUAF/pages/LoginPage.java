@@ -20,7 +20,7 @@ public class LoginPage extends BasePage {
     private static final int WAIT_SHORT = 10;
     private static final int WAIT_MEDIUM = 20;
 
-    // ---- Locators (PageFactory) --------------------------------------------
+    // ---- Locators (Page  Factory) --------------------------------------------
     @FindBy(xpath = "//a[@class='ico-login']")
     private WebElement loginLink;
 
@@ -89,6 +89,51 @@ public class LoginPage extends BasePage {
     public boolean clickLogoutLink() {
         waitUntilClickable(logoutLink, WAIT_MEDIUM);
         click(logoutLink, "Clicked Logout Link");
+        try {
+            waitUntilVisible(loginLink, WAIT_SHORT);
+            return loginLink.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Enters email into the login form.
+     */
+    public void enterEmail(String user) {
+        waitUntilVisible(email, WAIT_SHORT);
+        sendKeys(email, user);
+        log("Entered Email: " + user);
+    }
+
+    /**
+     * Enters password into the login form.
+     */
+    public void enterPassword(String pass) {
+        waitUntilVisible(password, WAIT_SHORT);
+        sendKeys(password, pass);
+        log("Entered Password: [PROTECTED]");
+    }
+
+    /**
+     * Clicks the login button.
+     */
+    public void clickLoginButton() {
+        waitUntilClickable(loginButton, WAIT_SHORT);
+        click(loginButton, "Submit Login");
+    }
+
+    /**
+     * Returns true if the user is logged in (logout link visible).
+     */
+    public boolean isLoggedIn() {
+        return isLoginSuccessful();
+    }
+
+    /**
+     * Returns true if the user is logged out (login link visible).
+     */
+    public boolean isLoggedOut() {
         try {
             waitUntilVisible(loginLink, WAIT_SHORT);
             return loginLink.isDisplayed();

@@ -1,5 +1,6 @@
 package com.MyridiusUAF.ai;
 
+import com.MyridiusUAF.ai.openai.OpenAiConfig;
 import com.MyridiusUAF.config.ConfigReader;
 
 public final class AiSwitches {
@@ -27,9 +28,8 @@ public final class AiSwitches {
     }
 
     public static boolean openAiGloballyEnabled() {
-        // must be on + have a usable API key in env
-        if (!Boolean.parseBoolean(ConfigReader.getProperty("ai.openai.enabled", "true"))) return false;
-        String k = System.getenv("OPENAI_API_KEY");
+        if (!OpenAiConfig.enabled()) return false;
+        String k = OpenAiConfig.apiKey();
         return k != null && !k.isBlank();
     }
 }

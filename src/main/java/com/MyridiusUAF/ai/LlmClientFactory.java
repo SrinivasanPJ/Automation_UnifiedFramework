@@ -1,20 +1,11 @@
 package com.MyridiusUAF.ai;
 
-import com.MyridiusUAF.ai.clients.OpenAiClient;
+import com.MyridiusUAF.ai.openai.OpenAiLlmClientFactory;
 
 public final class LlmClientFactory {
-    private LlmClientFactory() {
-    }
+    private LlmClientFactory() {}
 
-    /**
-     * Returns a ready client or null (never throws).
-     */
     public static LlmClient maybeCreate() {
-        if (!AiSwitches.openAiGloballyEnabled()) return null;
-        try {
-            return new OpenAiClient();
-        } catch (Throwable ignored) {
-            return null;
-        }
+        return OpenAiLlmClientFactory.fromConfigOrNull();
     }
 }

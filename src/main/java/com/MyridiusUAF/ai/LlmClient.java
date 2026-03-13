@@ -1,5 +1,9 @@
 package com.MyridiusUAF.ai;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.io.IOException;
+
 public interface LlmClient {
     /**
      * Sends a chat-style request to an LLM.
@@ -8,5 +12,5 @@ public interface LlmClient {
      * @param userPrompt   The concrete user message
      * @return The assistant's reply (plain text)
      */
-    String chat(String systemPrompt, String userPrompt);
+    String chat(String systemPrompt, String userPrompt) throws IOException, InterruptedException;
 }
